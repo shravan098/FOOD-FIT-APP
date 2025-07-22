@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">FOOD FIT</string>
+    <string name="results_will_appear_here">Results will appear here</string>
+    <string name="loading_food_data">Loading food data…</string>
+
+    <string name="searching_text">Searching for food… 🍌</string>
+    <string name="no_data_found">No data found or response was unsuccessful.</string>
+    <string name="api_failed">Failed to retrieve data 😞</string>
 </resources>
