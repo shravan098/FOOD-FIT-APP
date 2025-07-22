@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "685632843378",
+    "project_id": "foodfit-bc611",
+    "storage_bucket": "foodfit-bc611.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:685632843378:android:5129012d5763628b02dceb",
+        "android_client_info": {
+          "package_name": "com.example.foodfit"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB8J-hGgCi2qniek0DYfk77lPft_NEXrGM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:685632843378:android:45ea086168d0dbb002dceb",
+        "android_client_info": {
+          "package_name": "com.example.foodfitapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB8J-hGgCi2qniek0DYfk77lPft_NEXrGM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:685632843378:android:61a8e58d7afcf4aa02dceb",
+        "android_client_info": {
+          "package_name": "com.example.myapplication"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB8J-hGgCi2qniek0DYfk77lPft_NEXrGM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
