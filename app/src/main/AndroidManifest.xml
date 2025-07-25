@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- ✅ Declare permission here -->
+    <!-- ✅ Internet access for API calls -->
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -13,8 +13,9 @@
         android:fullBackupContent="@xml/backup_rules"
         android:dataExtractionRules="@xml/data_extraction_rules">
 
+        <!-- 🔄 Launches into FoodSearchActivity -->
         <activity
-            android:name=".MainActivity"
+            android:name=".FoodSearchActivity"
             android:exported="true"
             android:theme="@style/Theme.FOODFIT">
             <intent-filter>
@@ -22,5 +23,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- 🧭 Secondary activity for result display -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.FOODFIT" />
     </application>
 </manifest>

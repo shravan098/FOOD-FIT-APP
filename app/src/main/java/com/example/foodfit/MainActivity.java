@@ -1,68 +1,66 @@
 package com.example.foodfit;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import android.widget.TextView;
-
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "FoodSearch";
-    private static final String API_KEY = "FiKfVXO2OQUTg8YrXgzIo9URqOJ4d20neLaG7Xds";
-
-    private TextView resultView;
+    private static final String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        resultView = findViewById(R.id.resultView);
+        TextView resultView = findViewById(R.id.resultView);
         resultView.setText(getString(R.string.searching_text));
 
+        String foodDescription = getIntent().getStringExtra("foodDescription");
+        String nutrientJson = getIntent().getStringExtra("nutrients");
 
-        RetrofitClient.getService().searchFoods("banana", API_KEY)
-                .enqueue(new Callback<FoodSearchResponse>() {
-                    @Override
-                    public void onResponse(@NonNull Call<FoodSearchResponse> call, @NonNull Response<FoodSearchResponse> response) {
-                        if (response.isSuccessful() && response.body() != null) {
-                            List<FoodItem> foods = response.body().getFoods();
-                            StringBuilder builder = new StringBuilder();
+        Log.d(TAG, "Received description: " + foodDescription);
+        Log.d(TAG, "Received nutrient JSON: " + nutrientJson);
 
-                            for (FoodItem item : foods) {
-                                builder.append("🍽️ Food: ").append(item.getDescription()).append("\n");
-                                for (Nutrient nutrient : item.getFoodNutrients()) {
-                                    builder.append("🔹 ")
-                                            .append(nutrient.getNutrientName())
-                                            .append(": ")
-                                            .append(nutrient.getValue())
-                                            .append("\n");
-                                }
-                                builder.append("\n");
-                            }
+        List<Nutrient> nutrients = null;
+        if (nutrientJson != null && !nutrientJson.isEmpty()) {
+            nutrients = new Gson().fromJson(
+                    nutrientJson,
+                    new TypeToken<List<Nutrient>>() {}.getType()
+            );
+        }
 
-                            resultView.setText(builder.toString());
-                        } else {
-                            resultView.setText(getString(R.string.no_data_found));
+        if (nutrients != null && !nutrients.isEmpty()) {
+            resultView.setText(formatKeyNutrients(foodDescription, nutrients));
+        } else {
+            resultView.setText(getString(R.string.no_data_found));
+            Log.e(TAG, "Nutrients list is null or empty");
+        }
+    }
 
-                            Log.e(TAG, "Response unsuccessful or no data");
-                        }
-                    }
+    private String formatKeyNutrients(String description, List<Nutrient> foodNutrients) {
+        StringBuilder builder = new StringBuilder("🥗 " + description + "\n\n");
 
-                    @Override
-                    public void onFailure(@NonNull Call<FoodSearchResponse> call, @NonNull Throwable t) {
-                        resultView.setText(getString(R.string.api_failed));
+        for (Nutrient nutrient : foodNutrients) {
+            String name = nutrient.getNutrientName().toLowerCase();
+            if (name.contains("protein") || name.contains("fat") || name.contains("carbohydrate") ||
+                    name.contains("fiber") || name.contains("energy") || name.contains("calorie")) {
 
-                        Log.e(TAG, "API call failed: " + t.getMessage());
-                    }
-                });
+                builder.append("   🔹 ")
+                        .append(nutrient.getNutrientName())
+                        .append(": ")
+                        .append(nutrient.getValue())
+                        .append("\n");
+            }
+        }
+
+        return builder.toString();
     }
 }

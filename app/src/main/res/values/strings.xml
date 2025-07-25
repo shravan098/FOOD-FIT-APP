@@ -1,9 +1,23 @@
 <resources>
+    <!-- 🏷️ App Title -->
     <string name="app_name">FOOD FIT</string>
-    <string name="results_will_appear_here">Results will appear here</string>
-    <string name="loading_food_data">Loading food data…</string>
 
+    <!-- 🕐 General Status Messages -->
+    <string name="loading_food_data">Loading food data…</string>
     <string name="searching_text">Searching for food… 🍌</string>
+    <string name="results_will_appear_here">Results will appear here</string>
+    <string name="start_typing_above_to_search_for_food">Start typing above to search for food 🍽️</string>
+    <string name="search_for_a_food_item">Search for a food item</string>
+
+    <!-- 🔍 Search & Result Feedback -->
+    <string name="default_search_query">de</string>
+    <string name="searching_for">Searching for “%1$s”…</string>
+    <string name="suggestions_for">Suggestions for “%1$s”:</string>
+    <string name="no_results">No results for “%1$s” ❌</string>
+    <string name="no_food_found">No food found ❌</string>
+    <string name="api_error">API error: %1$s</string>
+
+    <!-- 📛 API Failures -->
     <string name="no_data_found">No data found or response was unsuccessful.</string>
     <string name="api_failed">Failed to retrieve data 😞</string>
 </resources>
