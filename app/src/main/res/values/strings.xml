@@ -24,4 +24,9 @@
     <string name="your_app_name">Your App Name</string>
     <string name="food_fit">FOOD FIT</string>
     <string name="eat_healthy_stay_fit">Eat Healthy Stay Fit</string>
+    <string name="choose_your_plan">Choose Your Plan</string>
+    <string name="welcome_to_food_fit">Welcome to Food Fit</string>
+    <string name="lose_weight">Lose Weight</string>
+    <string name="gain_weight">Gain Weight</string>
+    <string name="maintain_weight">Maintain Weight</string>
 </resources>

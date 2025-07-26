@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <!-- 👋 Welcome message -->
+
+    <ImageView
+        android:id="@+id/logoImage"
+        android:layout_width="761dp"
+        android:layout_height="914dp"
+        android:contentDescription="@string/app_logo"
+        android:src="@drawable/image1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.573"
+        tools:ignore="VisualLintBounds" />
+
+    <!-- 🎯 Plan prompt -->
+
+    <!-- 🔘 Lose Weight button -->
+
+    <!-- 🔘 Maintain Weight button -->
+
+    <!-- 🔘 Gain Weight button -->
+
+    <TextView
+        android:id="@+id/welcomeText"
+        android:layout_width="271dp"
+        android:layout_height="38dp"
+        android:layout_marginTop="80dp"
+        android:fontFamily="@font/ubuntu_bold"
+        android:text="@string/welcome_to_food_fit"
+        android:textColor="#FBFBFB"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="TextSizeCheck" />
+
+    <TextView
+        android:id="@+id/choosePlanText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="140dp"
+        android:fontFamily="@font/ubuntu_bold"
+        android:text="@string/choose_your_plan"
+        android:textColor="#FBFBFB"
+        android:textSize="40sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/loseWeightButton"
+        android:layout_width="346dp"
+        android:layout_height="93dp"
+        android:layout_marginTop="256dp"
+        android:text="@string/lose_weight"
+        android:textColor="#000000"
+        android:fontFamily="@font/ubuntu_bold"
+        android:textSize="30sp"
+        android:backgroundTint="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.585"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="VisualLintButtonSize" />
+
+    <Button
+        android:id="@+id/maintainWeightButton"
+        android:layout_width="346dp"
+        android:layout_height="93dp"
+        android:backgroundTint="@color/white"
+        android:fontFamily="@font/ubuntu_bold"
+        android:text="@string/maintain_weight"
+        android:textColor="#000000"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.6"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.516"
+        tools:ignore="VisualLintButtonSize,TextSizeCheck" />
+
+    <Button
+        android:id="@+id/gainWeightButton"
+        android:layout_width="346dp"
+        android:layout_height="93dp"
+        android:layout_marginTop="12dp"
+        android:backgroundTint="@color/white"
+        android:fontFamily="@font/ubuntu_bold"
+        android:text="@string/gain_weight"
+        android:textColor="#000000"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.584"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.711"
+        tools:ignore="VisualLintButtonSize" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
