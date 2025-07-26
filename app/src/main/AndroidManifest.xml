@@ -13,9 +13,9 @@
         android:fullBackupContent="@xml/backup_rules"
         android:dataExtractionRules="@xml/data_extraction_rules">
 
-        <!-- 🔄 Launches into FoodSearchActivity -->
+        <!-- 🟢 SplashActivity is now the launcher -->
         <activity
-            android:name=".FoodSearchActivity"
+            android:name=".SplashActivity"
             android:exported="true"
             android:theme="@style/Theme.FOODFIT">
             <intent-filter>
@@ -24,10 +24,18 @@
             </intent-filter>
         </activity>
 
-        <!-- 🧭 Secondary activity for result display -->
+        <!-- 🔄 FoodSearchActivity called from SplashActivity -->
+        <activity
+            android:name=".FoodSearchActivity"
+            android:exported="true"
+            android:theme="@style/Theme.FOODFIT" />
+
+        <!-- 📊 Optional: MainActivity if you're using it for results or other logic -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.FOODFIT" />
+
     </application>
+
 </manifest>

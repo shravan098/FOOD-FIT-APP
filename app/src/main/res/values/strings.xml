@@ -20,4 +20,8 @@
     <!-- 📛 API Failures -->
     <string name="no_data_found">No data found or response was unsuccessful.</string>
     <string name="api_failed">Failed to retrieve data 😞</string>
+    <string name="app_logo">App Logo</string>
+    <string name="your_app_name">Your App Name</string>
+    <string name="food_fit">FOOD FIT</string>
+    <string name="eat_healthy_stay_fit">Eat Healthy Stay Fit</string>
 </resources>
