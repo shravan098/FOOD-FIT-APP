@@ -24,19 +24,22 @@
             </intent-filter>
         </activity>
 
-        <!-- 🎯 PlanSelectionActivity: launched after Splash -->
+
         <activity
             android:name=".PlanSelectionActivity"
             android:exported="true"
             android:theme="@style/Theme.FOODFIT" />
+        <activity
+            android:name=".InputActivity"
+            android:exported="true"
+            android:theme="@style/Theme.FOODFIT" />
 
-        <!-- 🍽️ FoodSearchActivity: called after plan is chosen -->
+
         <activity
             android:name=".FoodSearchActivity"
             android:exported="true"
             android:theme="@style/Theme.FOODFIT" />
 
-        <!-- 📊 MainActivity: optional, for results/dashboard -->
         <activity
             android:name=".MainActivity"
             android:exported="true"

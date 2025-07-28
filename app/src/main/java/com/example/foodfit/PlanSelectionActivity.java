@@ -25,7 +25,7 @@ public class PlanSelectionActivity extends AppCompatActivity {
 
     // 🧭 Function to navigate forward with selected goal
     private void openNextScreen(String goalType) {
-        Intent intent = new Intent(PlanSelectionActivity.this, FoodSearchActivity.class);
+        Intent intent = new Intent(PlanSelectionActivity.this, InputActivity.class);
         intent.putExtra("goal", goalType);
         startActivity(intent);
         finish();

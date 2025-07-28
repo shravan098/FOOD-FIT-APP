@@ -29,4 +29,19 @@
     <string name="lose_weight">Lose Weight</string>
     <string name="gain_weight">Gain Weight</string>
     <string name="maintain_weight">Maintain Weight</string>
+    <string name="gender">Gender</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="other">Other</string>
+    <string name="next_button">Next Button</string>
+    <string name="back_button">Back Button</string>
+    <string name="gender2">Gender:</string>
+    <string name="age">Age:</string>
+    <string name="enter_age">Enter Age</string>
+    <string name="height_cm">Height (cm):</string>
+    <string name="enter_height_in_cm">Enter Height in cm</string>
+    <string name="weight_kg">Weight (kg):</string>
+    <string name="enter_weight_in_kgs">Enter Weight in kgs</string>
+    <string name="goal_weight_kg">Goal Weight (kg):</string>
+    <string name="enter_goal_weight">Enter Goal Weight</string>
 </resources>
