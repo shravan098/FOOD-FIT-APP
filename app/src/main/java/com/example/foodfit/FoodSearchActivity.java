@@ -28,6 +28,12 @@ public class FoodSearchActivity extends AppCompatActivity {
     private static final String TAG = "FoodSearch";
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        SessionTracker.actions.add("Entered FoodSearchActivity at " + System.currentTimeMillis());
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_food_search);
@@ -48,6 +54,7 @@ public class FoodSearchActivity extends AppCompatActivity {
                 String query = searchInput.getText().toString().trim();
                 Log.d(TAG, "User searched for: " + query);
                 if (!query.isEmpty()) {
+                    SessionTracker.actions.add("Searched for \"" + query + "\" at " + System.currentTimeMillis());
                     adapter.setData(List.of());
                     placeholderMessage.setText("Searching for \"" + query + "\"...");
                     searchFood(query, adapter, placeholderMessage);
@@ -90,6 +97,7 @@ public class FoodSearchActivity extends AppCompatActivity {
     }
 
     private void launchNutrientScreen(FoodItem item) {
+        SessionTracker.actions.add("Selected food item: " + item.getDescription() + " at " + System.currentTimeMillis());
         Log.d(TAG, "Launching MainActivity with: " + item.getDescription());
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra("foodDescription", item.getDescription());
