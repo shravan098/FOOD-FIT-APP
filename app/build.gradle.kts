@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.constraintlayout)
     implementation("androidx.recyclerview:recyclerview:1.4.0")
+    implementation("com.google.firebase:firebase-firestore:24.9.1")
     implementation(libs.firebase.database)
     implementation(libs.firebase.firestore)
     testImplementation(libs.junit)

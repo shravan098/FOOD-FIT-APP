@@ -1,10 +1,13 @@
 package com.example.foodfit;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -50,9 +53,24 @@ public class SplashActivity extends AppCompatActivity {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         sessionData.put("date", sdf.format(new Date(SessionTracker.startTime)));
 
+        // ✅ Enhanced metadata
+        String sessionId = UUID.randomUUID().toString();
+        sessionData.put("sessionId", sessionId);
+        sessionData.put("deviceModel", Build.MODEL);
+        sessionData.put("deviceBrand", Build.BRAND);
+        sessionData.put("deviceOS", Build.VERSION.RELEASE);
+        sessionData.put("userId", "guest_" + System.currentTimeMillis());
+
         FirebaseFirestore.getInstance()
                 .collection("userSessions")
-                .add(sessionData);
+                .document(sessionId)
+                .set(sessionData)
+                .addOnSuccessListener(aVoid -> {
+                    // Optional: Logging or analytics
+                })
+                .addOnFailureListener(e -> {
+                    // Optional: Error handling or retry logic
+                });
     }
 
     private String formatTime(long millis) {
