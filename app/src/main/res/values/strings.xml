@@ -44,4 +44,7 @@
     <string name="enter_weight_in_kgs">Enter Weight in kgs</string>
     <string name="goal_weight_kg">Goal Weight (kg):</string>
     <string name="enter_goal_weight">Enter Goal Weight</string>
+    <string name="please_fill_in_all_fields">Please fill in all fields.</string>
+    <string name="invalid_number_entered_please_check_your_inputs">Invalid number entered. Please check your inputs.</string>
+    <string name="save">Save</string>
 </resources>

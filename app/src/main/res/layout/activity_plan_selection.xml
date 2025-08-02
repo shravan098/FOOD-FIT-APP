@@ -9,6 +9,14 @@
 
     <!-- 👋 Welcome message -->
 
+    <!-- 🎯 Plan prompt -->
+
+    <!-- 🔘 Lose Weight button -->
+
+    <!-- 🔘 Maintain Weight button -->
+
+    <!-- 🔘 Gain Weight button -->
+
     <ImageView
         android:id="@+id/logoImage"
         android:layout_width="761dp"
@@ -17,18 +25,11 @@
         android:src="@drawable/image1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.468"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.573"
+        app:layout_constraintVertical_bias="0.0"
         tools:ignore="VisualLintBounds" />
-
-    <!-- 🎯 Plan prompt -->
-
-    <!-- 🔘 Lose Weight button -->
-
-    <!-- 🔘 Maintain Weight button -->
-
-    <!-- 🔘 Gain Weight button -->
 
     <TextView
         android:id="@+id/welcomeText"
@@ -86,10 +87,9 @@
         android:textSize="30sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.6"
+        app:layout_constraintHorizontal_bias="0.584"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.516"
         tools:ignore="VisualLintButtonSize,TextSizeCheck" />
 
     <Button
@@ -104,10 +104,10 @@
         android:textSize="30sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.584"
+        app:layout_constraintHorizontal_bias="0.492"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.711"
+        app:layout_constraintVertical_bias="0.656"
         tools:ignore="VisualLintButtonSize" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
