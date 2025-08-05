@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "685632843378",
+    "firebase_url": "https://foodfit-bc611-default-rtdb.firebaseio.com",
     "project_id": "foodfit-bc611",
     "storage_bucket": "foodfit-bc611.firebasestorage.app"
   },

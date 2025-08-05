@@ -33,8 +33,22 @@
                 android:name=".InputActivity"
                 android:exported="true"
                 android:theme="@style/Theme.FOODFIT" />
-
-
+            <activity
+                android:name=".SignInActivity"
+                android:exported="true"
+                android:theme="@style/Theme.FOODFIT" />
+            <activity
+                android:name=".ForgotPasswordActivity"
+                android:exported="true"
+                android:theme="@style/Theme.FOODFIT" />
+            <activity
+                android:name=".ResetPasswordActivity"
+                android:exported="true"
+                android:theme="@style/Theme.FOODFIT" />
+            <activity
+                android:name=".SignUpActivity"
+                android:exported="true"
+                android:theme="@style/Theme.FOODFIT" />
             <activity
                 android:name=".FoodSearchActivity"
                 android:exported="true"

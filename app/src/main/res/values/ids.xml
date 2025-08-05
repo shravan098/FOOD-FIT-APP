@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="otpInput" type="id"/>
+    <item name="newPasswordInput" type="id"/>
+    <item name="resetPasswordButton" type="id"/>
+</resources>

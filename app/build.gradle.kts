@@ -55,6 +55,7 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore:24.9.1")
     implementation(libs.firebase.database)
     implementation(libs.firebase.firestore)
+    implementation(libs.firebase.auth)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

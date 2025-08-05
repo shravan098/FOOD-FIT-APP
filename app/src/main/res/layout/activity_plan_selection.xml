@@ -110,4 +110,33 @@
         app:layout_constraintVertical_bias="0.656"
         tools:ignore="VisualLintButtonSize" />
 
+    <TextView
+        android:id="@+id/alreadyAccountText"
+        android:layout_width="292dp"
+        android:layout_height="31dp"
+        android:layout_marginBottom="152dp"
+        android:fontFamily="@font/ubuntu_bold"
+        android:text="@string/i_already_have_an_account"
+        android:textColor="#FFFFFF"
+        android:textSize="23sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="TextSizeCheck" />
+
+    <TextView
+        android:id="@+id/signInLink"
+        android:layout_width="74dp"
+        android:layout_height="39dp"
+        android:layout_marginTop="4dp"
+        android:text="@string/sign_in"
+        android:textColor="#EB1E05"
+        android:textSize="23sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/alreadyAccountText"
+        tools:ignore="TextSizeCheck" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
