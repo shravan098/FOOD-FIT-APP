@@ -1,90 +1,133 @@
 package com.example.foodfit;
 
-import android.graphics.Color;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.*;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
-import java.util.HashMap;
-import java.util.Map;
+
+import java.util.*;
 
 public class SignUpActivity extends AppCompatActivity {
 
     private EditText usernameInput, emailInput, passwordInput, confirmPasswordInput, phoneInput;
-    private TextView statusText;
-    private FirebaseAuth auth;
-    private FirebaseFirestore firestore;
+    private Button signUpButton, googleSignUpButton, facebookSignUpButton, backButton, nextButton;
+
+    private String age, height, weight, goalWeight, gender, goalType, bmrResult;
+
+    private boolean isSignupSuccessful = false;  // To track success before moving next
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
 
-        auth = FirebaseAuth.getInstance();
-        firestore = FirebaseFirestore.getInstance();
-
+        // UI references
         usernameInput = findViewById(R.id.usernameInput);
         emailInput = findViewById(R.id.emailInput);
         passwordInput = findViewById(R.id.passwordInput);
         confirmPasswordInput = findViewById(R.id.confirmPasswordInput);
         phoneInput = findViewById(R.id.phoneInput);
-        statusText = findViewById(R.id.statusText);
-        Button signupButton = findViewById(R.id.signupButton);
+        signUpButton = findViewById(R.id.signupButton);
+        googleSignUpButton = findViewById(R.id.googleSignInButton);
+        facebookSignUpButton = findViewById(R.id.facebookSignInButton);
+        backButton = findViewById(R.id.backButton);   // Add in layout
+        nextButton = findViewById(R.id.nextButton);   // Add in layout
 
-        signupButton.setOnClickListener(v -> registerUser());
+        // Get input data from InputActivity
+        age = getIntent().getStringExtra("age");
+        height = getIntent().getStringExtra("height");
+        weight = getIntent().getStringExtra("weight");
+        goalWeight = getIntent().getStringExtra("goalWeight");
+        gender = getIntent().getStringExtra("gender");
+        goalType = getIntent().getStringExtra("goalType");
+        bmrResult = getIntent().getStringExtra("bmrResult");
+
+        // Sign up logic
+        signUpButton.setOnClickListener(v -> {
+            String username = usernameInput.getText().toString().trim();
+            String email = emailInput.getText().toString().trim();
+            String password = passwordInput.getText().toString().trim();
+            String confirmPassword = confirmPasswordInput.getText().toString().trim();
+            String phone = phoneInput.getText().toString().trim();
+
+            if (username.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() || phone.isEmpty()) {
+                Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (!password.equals(confirmPassword)) {
+                Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Firebase signup
+            FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+                            if (firebaseUser != null) {
+                                String uid = firebaseUser.getUid();
+
+                                // Prepare data to store in Firestore
+                                Map<String, Object> userData = getStringObjectMap(username, email, phone);
+
+                                FirebaseFirestore.getInstance().collection("users").document(uid)
+                                        .set(userData)
+                                        .addOnSuccessListener(aVoid -> {
+                                            Log.d("Firestore", "User data saved");
+                                            Toast.makeText(this, "Sign up successful", Toast.LENGTH_SHORT).show();
+                                            isSignupSuccessful = true;  // allow next button
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Log.e("Firestore", "Error saving data", e);
+                                            Toast.makeText(this, "Failed to save user data", Toast.LENGTH_SHORT).show();
+                                        });
+                            }
+                        } else {
+                            Toast.makeText(this, "Sign up failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        });
+
+        // Back button → go to InputActivity
+        backButton.setOnClickListener(v -> {
+            Intent intent = new Intent(SignUpActivity.this, InputActivity.class);
+            startActivity(intent);
+            finish();
+        });
+
+        // Next button → only proceed if sign-up was successful
+        nextButton.setOnClickListener(v -> {
+            if (isSignupSuccessful) {
+                Intent intent = new Intent(SignUpActivity.this, FoodSearchActivity.class);
+                startActivity(intent);
+                finish();
+            } else {
+                Toast.makeText(this, "Please complete sign-up first", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
-    private void registerUser() {
-        String username = usernameInput.getText().toString().trim();
-        String email = emailInput.getText().toString().trim();
-        String password = passwordInput.getText().toString().trim();
-        String confirmPassword = confirmPasswordInput.getText().toString().trim();
-        String phone = phoneInput.getText().toString().trim();
-
-        if (username.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() || phone.isEmpty()) {
-            statusText.setText("All fields are required.");
-            return;
-        }
-        if (!password.equals(confirmPassword)) {
-            statusText.setText("Passwords do not match.");
-            return;
-        }
-        if (password.length() < 6) {
-            statusText.setText("Password must be at least 6 characters.");
-            return;
-        }
-
-        auth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        String uid = auth.getCurrentUser().getUid();
-
-                        Map<String, Object> userMap = new HashMap<>();
-                        userMap.put("username", username);
-                        userMap.put("email", email);
-                        userMap.put("phone", phone);
-                        userMap.put("uid", uid);
-
-                        userMap.put("goal", getIntent().getStringExtra("goal"));
-                        userMap.put("age", getIntent().getStringExtra("age"));
-                        userMap.put("height", getIntent().getStringExtra("height"));
-                        userMap.put("weight", getIntent().getStringExtra("weight"));
-                        userMap.put("goalWeight", getIntent().getStringExtra("goalWeight"));
-                        userMap.put("gender", getIntent().getStringExtra("gender"));
-
-                        firestore.collection("users").document(uid)
-                                .set(userMap)
-                                .addOnSuccessListener(unused -> {
-                                    statusText.setTextColor(Color.GREEN);
-                                    statusText.setText(R.string.sign_up_successful);
-                                })
-                                .addOnFailureListener(e -> {
-                                    statusText.setText("Firestore Error: " + e.getMessage());
-                                });
-                    } else {
-                        statusText.setText("Sign-Up Failed: " + task.getException().getMessage());
-                    }
-                });
+    @NonNull
+    private Map<String, Object> getStringObjectMap(String username, String email, String phone) {
+        Map<String, Object> userData = new HashMap<>();
+        userData.put("username", username);
+        userData.put("email", email);
+        userData.put("phone", phone);
+        userData.put("age", age);
+        userData.put("height", height);
+        userData.put("weight", weight);
+        userData.put("goalWeight", goalWeight);
+        userData.put("gender", gender);
+        userData.put("goalType", goalType);
+        userData.put("bmrResult", bmrResult);
+        return userData;
     }
 }

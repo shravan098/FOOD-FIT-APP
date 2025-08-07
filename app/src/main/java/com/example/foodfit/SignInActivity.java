@@ -14,6 +14,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class SignInActivity extends AppCompatActivity {
+
     private EditText usernameInput, passwordInput;
     private TextView forgotPasswordText;
     private Button signInButton, googleButton, facebookButton;
@@ -40,8 +41,13 @@ public class SignInActivity extends AppCompatActivity {
         });
 
         signInButton.setOnClickListener(v -> {
-            String username = usernameInput.getText().toString();
-            String password = passwordInput.getText().toString();
+            String username = usernameInput.getText().toString().trim();
+            String password = passwordInput.getText().toString().trim();
+
+            if (username.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Please enter username and password", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             db.collection("users")
                     .whereEqualTo("username", username)
@@ -50,18 +56,28 @@ public class SignInActivity extends AppCompatActivity {
                         if (!queryDocumentSnapshots.isEmpty()) {
                             DocumentSnapshot doc = queryDocumentSnapshots.getDocuments().get(0);
                             String email = doc.getString("email");
+
                             mAuth.signInWithEmailAndPassword(email, password)
                                     .addOnCompleteListener(task -> {
                                         if (task.isSuccessful()) {
                                             Toast.makeText(this, "Signed In!", Toast.LENGTH_SHORT).show();
-                                            // TODO: Navigate to home screen
+
+                                            // ✅ Redirect to FoodSearchActivity
+                                            Intent intent = new Intent(SignInActivity.this, FoodSearchActivity.class);
+                                            startActivity(intent);
+                                            finish();
+
                                         } else {
                                             Toast.makeText(this, "Wrong password", Toast.LENGTH_SHORT).show();
                                         }
                                     });
+
                         } else {
                             Toast.makeText(this, "Username not found", Toast.LENGTH_SHORT).show();
                         }
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Error fetching user: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     });
         });
 
