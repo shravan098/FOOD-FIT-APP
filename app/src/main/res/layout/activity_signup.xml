@@ -151,41 +151,16 @@
             app:layout_constraintTop_toBottomOf="@id/phoneInput"
             tools:ignore="VisualLintButtonSize" />
 
-        <Button
-            android:id="@+id/googleSignInButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:backgroundTint="#DB4437"
-            android:text="@string/sign_up_with_google"
-            android:textColor="#000000"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/signupButton"
-            tools:ignore="VisualLintButtonSize" />
-
-        <Button
-            android:id="@+id/facebookSignInButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@string/sign_up_with_facebook"
-            android:textColor="@android:color/white"
-            android:backgroundTint="#3b5998"
-            app:layout_constraintTop_toBottomOf="@id/googleSignInButton"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="16dp"
-            tools:ignore="VisualLintButtonSize" />
 
         <TextView
             android:id="@+id/statusText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textColor="@android:color/holo_red_light"
             android:text=""
-            app:layout_constraintTop_toBottomOf="@id/facebookSignInButton"
-            app:layout_constraintStart_toStartOf="parent"
+            android:textColor="@android:color/holo_red_light"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="16dp" />
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/signupButton" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

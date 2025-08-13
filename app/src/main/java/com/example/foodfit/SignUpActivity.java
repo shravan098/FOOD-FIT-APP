@@ -1,46 +1,46 @@
 package com.example.foodfit;
 
+import com.google.firebase.auth.*;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.*;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.*;
 
 public class SignUpActivity extends AppCompatActivity {
+    private static final String TAG = "SignUpActivity";
 
     private EditText usernameInput, emailInput, passwordInput, confirmPasswordInput, phoneInput;
-    private Button signUpButton, googleSignUpButton, facebookSignUpButton, backButton, nextButton;
+    private Button signUpButton, backButton, nextButton;
 
     private String age, height, weight, goalWeight, gender, goalType, bmrResult;
+    private boolean isSignupSuccessful = false;
 
-    private boolean isSignupSuccessful = false;  // To track success before moving next
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
 
-        // UI references
+        mAuth = FirebaseAuth.getInstance();
+
+        // UI refs
         usernameInput = findViewById(R.id.usernameInput);
         emailInput = findViewById(R.id.emailInput);
         passwordInput = findViewById(R.id.passwordInput);
         confirmPasswordInput = findViewById(R.id.confirmPasswordInput);
         phoneInput = findViewById(R.id.phoneInput);
         signUpButton = findViewById(R.id.signupButton);
-        googleSignUpButton = findViewById(R.id.googleSignInButton);
-        facebookSignUpButton = findViewById(R.id.facebookSignInButton);
-        backButton = findViewById(R.id.backButton);   // Add in layout
-        nextButton = findViewById(R.id.nextButton);   // Add in layout
+        backButton = findViewById(R.id.backButton);
+        nextButton = findViewById(R.id.nextButton);
 
-        // Get input data from InputActivity
+        // extras from InputActivity
         age = getIntent().getStringExtra("age");
         height = getIntent().getStringExtra("height");
         weight = getIntent().getStringExtra("weight");
@@ -49,65 +49,19 @@ public class SignUpActivity extends AppCompatActivity {
         goalType = getIntent().getStringExtra("goalType");
         bmrResult = getIntent().getStringExtra("bmrResult");
 
-        // Sign up logic
-        signUpButton.setOnClickListener(v -> {
-            String username = usernameInput.getText().toString().trim();
-            String email = emailInput.getText().toString().trim();
-            String password = passwordInput.getText().toString().trim();
-            String confirmPassword = confirmPasswordInput.getText().toString().trim();
-            String phone = phoneInput.getText().toString().trim();
+        // Email signup handler
+        signUpButton.setOnClickListener(v -> signUpWithEmail());
 
-            if (username.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() || phone.isEmpty()) {
-                Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if (!password.equals(confirmPassword)) {
-                Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            // Firebase signup
-            FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-                            if (firebaseUser != null) {
-                                String uid = firebaseUser.getUid();
-
-                                // Prepare data to store in Firestore
-                                Map<String, Object> userData = getStringObjectMap(username, email, phone);
-
-                                FirebaseFirestore.getInstance().collection("users").document(uid)
-                                        .set(userData)
-                                        .addOnSuccessListener(aVoid -> {
-                                            Log.d("Firestore", "User data saved");
-                                            Toast.makeText(this, "Sign up successful", Toast.LENGTH_SHORT).show();
-                                            isSignupSuccessful = true;  // allow next button
-                                        })
-                                        .addOnFailureListener(e -> {
-                                            Log.e("Firestore", "Error saving data", e);
-                                            Toast.makeText(this, "Failed to save user data", Toast.LENGTH_SHORT).show();
-                                        });
-                            }
-                        } else {
-                            Toast.makeText(this, "Sign up failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-        });
-
-        // Back button → go to InputActivity
+        // Back -> InputActivity
         backButton.setOnClickListener(v -> {
-            Intent intent = new Intent(SignUpActivity.this, InputActivity.class);
-            startActivity(intent);
+            startActivity(new Intent(SignUpActivity.this, InputActivity.class));
             finish();
         });
 
-        // Next button → only proceed if sign-up was successful
+        // Next -> only after successful signup
         nextButton.setOnClickListener(v -> {
             if (isSignupSuccessful) {
-                Intent intent = new Intent(SignUpActivity.this, FoodSearchActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(SignUpActivity.this, FoodSearchActivity.class));
                 finish();
             } else {
                 Toast.makeText(this, "Please complete sign-up first", Toast.LENGTH_SHORT).show();
@@ -115,19 +69,71 @@ public class SignUpActivity extends AppCompatActivity {
         });
     }
 
-    @NonNull
-    private Map<String, Object> getStringObjectMap(String username, String email, String phone) {
+    // ---------------- Email signup ----------------
+    private void signUpWithEmail() {
+        String username = usernameInput.getText().toString().trim();
+        String email = emailInput.getText().toString().trim();
+        String password = passwordInput.getText().toString().trim();
+        String confirmPassword = confirmPasswordInput.getText().toString().trim();
+        String phone = phoneInput.getText().toString().trim();
+
+        if (username.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() || phone.isEmpty()) {
+            Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (!password.equals(confirmPassword)) {
+            Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        saveUserData(mAuth.getCurrentUser(), username, phone, true);
+                    } else {
+                        String err = task.getException() != null ? task.getException().getMessage() : "unknown";
+                        Log.e(TAG, "Email sign-up failed: " + err);
+                        Toast.makeText(this, "Sign up failed: " + err, Toast.LENGTH_LONG).show();
+                    }
+                });
+    }
+
+    // ---------------- Save to Firestore ----------------
+    private void saveUserData(FirebaseUser firebaseUser, String username, String phone, boolean redirect) {
+        if (firebaseUser == null) {
+            Log.e(TAG, "saveUserData called with null user");
+            return;
+        }
+
+        String uid = firebaseUser.getUid();
+        String email = firebaseUser.getEmail() != null ? firebaseUser.getEmail() : "";
+
         Map<String, Object> userData = new HashMap<>();
-        userData.put("username", username);
+        userData.put("username", username != null ? username : "");
         userData.put("email", email);
-        userData.put("phone", phone);
-        userData.put("age", age);
-        userData.put("height", height);
-        userData.put("weight", weight);
-        userData.put("goalWeight", goalWeight);
-        userData.put("gender", gender);
-        userData.put("goalType", goalType);
-        userData.put("bmrResult", bmrResult);
-        return userData;
+        userData.put("phone", phone != null ? phone : "");
+        userData.put("age", age != null ? age : "");
+        userData.put("height", height != null ? height : "");
+        userData.put("weight", weight != null ? weight : "");
+        userData.put("goalWeight", goalWeight != null ? goalWeight : "");
+        userData.put("gender", gender != null ? gender : "");
+        userData.put("goalType", goalType != null ? goalType : "");
+        userData.put("bmrResult", bmrResult != null ? bmrResult : "");
+
+        FirebaseFirestore.getInstance().collection("users").document(uid)
+                .set(userData)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "User data saved to Firestore for uid=" + uid);
+                    Toast.makeText(this, "Sign up successful", Toast.LENGTH_SHORT).show();
+                    isSignupSuccessful = true;
+                    if (redirect) {
+                        startActivity(new Intent(SignUpActivity.this, FoodSearchActivity.class));
+                        finish();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error saving user data", e);
+                    Toast.makeText(this, "Failed to save user data: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                });
     }
 }

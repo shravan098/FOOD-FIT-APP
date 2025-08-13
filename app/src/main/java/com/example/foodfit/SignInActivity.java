@@ -17,7 +17,7 @@ public class SignInActivity extends AppCompatActivity {
 
     private EditText usernameInput, passwordInput;
     private TextView forgotPasswordText;
-    private Button signInButton, googleButton, facebookButton;
+    private Button signInButton;
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
@@ -33,8 +33,12 @@ public class SignInActivity extends AppCompatActivity {
         passwordInput = findViewById(R.id.passwordInput);
         forgotPasswordText = findViewById(R.id.forgotPasswordText);
         signInButton = findViewById(R.id.signInButton);
-        googleButton = findViewById(R.id.googleSignInButton);
-        facebookButton = findViewById(R.id.facebookSignInButton);
+
+        TextView forgotUsernameText = findViewById(R.id.UserPasswordText);
+
+        forgotUsernameText.setOnClickListener(v -> {
+            startActivity(new Intent(this, ForgotUsernameActivity.class));
+        });
 
         forgotPasswordText.setOnClickListener(v -> {
             startActivity(new Intent(this, ForgotPasswordActivity.class));

@@ -72,4 +72,17 @@
     <string name="reset_password">Reset Password</string>
     <string name="confirm_password">Confirm Password</string>
     <string name="sign_up_successful">Sign-Up Successful!</string>
+    <string name="sign_in_with_google2">sign in with google</string>
+    <string name="default_web_client_id">3</string>
+    <string name="sign_up_with_goggle">Sign up with Goggle</string>
+    <string name="sign_up_with_facebook2">sign up with facebook</string>
+    <string name="forgot_password_or_username">forgot password or Username</string>
+    <string name="forgot_password_or_username5">Forgot Password or username</string>
+    <string name="username_password">Username password</string>
+    <string name="forgot_username">Forgot username?</string>
+    <string name="new_username">2</string>
+    <string name="confirm_username">3</string>
+    <string name="reset_username">2</string>
+    <string name="enter_new_username">Enter New Username</string>
+    <string name="reset_username2">Reset Username</string>
 </resources>

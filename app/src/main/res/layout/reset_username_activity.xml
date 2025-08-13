@@ -1,0 +1,73 @@
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp"
+    android:background="@android:color/black">
+
+    <!-- Logo -->
+
+    <!-- OTP Input -->
+    <ImageView
+        android:id="@+id/logoImage"
+        android:layout_width="446dp"
+        android:layout_height="713dp"
+        android:layout_marginBottom="24dp"
+        android:contentDescription="@string/app_logo"
+        android:src="@drawable/image1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.084"
+        tools:ignore="VisualLintBounds" />
+
+    <EditText
+        android:id="@+id/otpInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:autofillHints=""
+        android:backgroundTint="@android:color/white"
+        android:hint="@string/enter_otp"
+        android:inputType="number"
+        android:minHeight="48dp"
+        android:textColor="@android:color/white"
+        android:textColorHint="@android:color/darker_gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="VisualLintTextFieldSize" />
+
+    <!-- New Username Input -->
+    <EditText
+        android:id="@+id/newUsernameInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:autofillHints=""
+        android:hint="@string/enter_new_username"
+        android:backgroundTint="@android:color/white"
+        android:inputType="textPersonName"
+        android:minHeight="48dp"
+        android:textColor="@android:color/white"
+        android:textColorHint="@android:color/darker_gray"
+        app:layout_constraintTop_toBottomOf="@id/otpInput"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:ignore="VisualLintTextFieldSize" />
+
+    <!-- Reset Username Button -->
+    <Button
+        android:id="@+id/resetUsernameButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="36dp"
+        android:text="@string/reset_username2"
+        app:layout_constraintTop_toBottomOf="@id/newUsernameInput"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:ignore="VisualLintButtonSize" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

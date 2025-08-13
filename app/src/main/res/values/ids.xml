@@ -3,4 +3,6 @@
     <item name="otpInput" type="id"/>
     <item name="newPasswordInput" type="id"/>
     <item name="resetPasswordButton" type="id"/>
+    <item name="confirmUsernameInput" type="id"/>
+    <item name="resetUsernameButton" type="id"/>
 </resources>
