@@ -57,7 +57,14 @@
             android:name=".ForgotUsernameActivity"
             android:exported="true"
             android:theme="@style/Theme.FOODFIT" />
-
+        <activity
+            android:name=".LoadingActivity"
+            android:exported="true"
+            android:theme="@style/Theme.FOODFIT" />
+        <activity
+            android:name=".Postlogin"
+            android:exported="true"
+            android:theme="@style/Theme.FOODFIT" />
         <activity
             android:name=".SignUpActivity"
             android:exported="true"

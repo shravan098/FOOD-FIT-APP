@@ -61,7 +61,7 @@ public class SignUpActivity extends AppCompatActivity {
         // Next -> only after successful signup
         nextButton.setOnClickListener(v -> {
             if (isSignupSuccessful) {
-                startActivity(new Intent(SignUpActivity.this, FoodSearchActivity.class));
+                startActivity(new Intent(SignUpActivity.this, LoadingActivity.class));
                 finish();
             } else {
                 Toast.makeText(this, "Please complete sign-up first", Toast.LENGTH_SHORT).show();
@@ -127,7 +127,7 @@ public class SignUpActivity extends AppCompatActivity {
                     Toast.makeText(this, "Sign up successful", Toast.LENGTH_SHORT).show();
                     isSignupSuccessful = true;
                     if (redirect) {
-                        startActivity(new Intent(SignUpActivity.this, FoodSearchActivity.class));
+                        startActivity(new Intent(SignUpActivity.this, LoadingActivity.class));
                         finish();
                     }
                 })

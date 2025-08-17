@@ -67,7 +67,7 @@ public class SignInActivity extends AppCompatActivity {
                                             Toast.makeText(this, "Signed In!", Toast.LENGTH_SHORT).show();
 
                                             // ✅ Redirect to FoodSearchActivity
-                                            Intent intent = new Intent(SignInActivity.this, FoodSearchActivity.class);
+                                            Intent intent = new Intent(SignInActivity.this, LoadingActivity.class);
                                             startActivity(intent);
                                             finish();
 

@@ -85,4 +85,23 @@
     <string name="reset_username">2</string>
     <string name="enter_new_username">Enter New Username</string>
     <string name="reset_username2">Reset Username</string>
+    <string name="todo">TODO</string>
+    <string name="food_fit4">Food Fit</string>
+    <string name="eaten_total">Eaten / Total</string>
+    <string name="_0_0">0 / 0</string>
+    <string name="todo3">TODO</string>
+    <string name="breakfast">Breakfast</string>
+    <string name="todo1">TODO</string>
+    <string name="todo2">TODO</string>
+    <string name="lunch">Lunch</string>
+    <string name="todo54">TODO</string>
+    <string name="t2odo">TODO</string>
+    <string name="dinner">Dinner</string>
+    <string name="profile">Profile</string>
+    <string name="home">Home</string>
+    <string name="todo6">TODO</string>
+    <string name="to6do">TODO</string>
+    <string name="water">Water</string>
+    <string name="_0_9">0/9</string>
+    <string name="tod6o">TODO</string>
 </resources>
