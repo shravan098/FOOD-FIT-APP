@@ -165,6 +165,24 @@ public class InputActivity extends AppCompatActivity {
             String gender = genderSpinner.getSelectedItem().toString();
             String bmrResult = resultText.getText().toString();
 
+            // ⚡ Calculate again to send dailyCalorie forward
+            float bmr = gender.equalsIgnoreCase("male") ?
+                    (10 * Float.parseFloat(weight)) + (6.25f * Float.parseFloat(height)) - (5 * Float.parseFloat(age)) + 5 :
+                    (10 * Float.parseFloat(weight)) + (6.25f * Float.parseFloat(height)) - (5 * Float.parseFloat(age)) - 161;
+
+            float targetCalories;
+            switch (goalType) {
+                case "lose weight":
+                    targetCalories = bmr * 0.8f;
+                    break;
+                case "gain weight":
+                    targetCalories = bmr * 1.2f;
+                    break;
+                default:
+                    targetCalories = bmr;
+                    break;
+            }
+
             Intent intent = new Intent(InputActivity.this, SignUpActivity.class);
             intent.putExtra("age", age);
             intent.putExtra("height", height);
@@ -173,6 +191,9 @@ public class InputActivity extends AppCompatActivity {
             intent.putExtra("gender", gender);
             intent.putExtra("goalType", goalType);
             intent.putExtra("bmrResult", bmrResult);
+
+            // ✅ Send dailyCalorie value
+            intent.putExtra("dailyCalorie", Math.round(targetCalories));
 
             SessionTracker.actions.add("Clicked Next button at " + System.currentTimeMillis());
 

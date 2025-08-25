@@ -7,19 +7,18 @@ import android.os.Handler;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class LoadingActivity extends AppCompatActivity {
-
-    private static final int LOADING_TIME = 5000; // 5 seconds
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.loading_screen);
 
-        // Delay and move to next page
+        int dailyCalorie = getIntent().getIntExtra("dailyCalorie", 1340);
+
         new Handler().postDelayed(() -> {
             Intent intent = new Intent(LoadingActivity.this, Postlogin.class);
+            intent.putExtra("dailyCalorie", dailyCalorie);
             startActivity(intent);
             finish();
-        }, LOADING_TIME);
+        }, 2000); // 2 sec delay
     }
 }

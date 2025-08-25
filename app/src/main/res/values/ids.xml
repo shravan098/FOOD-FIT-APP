@@ -5,4 +5,6 @@
     <item name="resetPasswordButton" type="id"/>
     <item name="confirmUsernameInput" type="id"/>
     <item name="resetUsernameButton" type="id"/>
+    <item name="toggleConfirmPassword" type="id"/>
+    <item name="togglePassword" type="id"/>
 </resources>

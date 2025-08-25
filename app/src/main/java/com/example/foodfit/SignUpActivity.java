@@ -5,6 +5,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.widget.*;
 
@@ -16,9 +18,11 @@ public class SignUpActivity extends AppCompatActivity {
     private static final String TAG = "SignUpActivity";
 
     private EditText usernameInput, emailInput, passwordInput, confirmPasswordInput, phoneInput;
-    private Button signUpButton, backButton, nextButton;
+    private ImageView togglePassword, toggleConfirmPassword;
+    private Button signUpButton, backButton;
 
     private String age, height, weight, goalWeight, gender, goalType, bmrResult;
+    private int dailyCalorie;
     private boolean isSignupSuccessful = false;
 
     private FirebaseAuth mAuth;
@@ -36,9 +40,10 @@ public class SignUpActivity extends AppCompatActivity {
         passwordInput = findViewById(R.id.passwordInput);
         confirmPasswordInput = findViewById(R.id.confirmPasswordInput);
         phoneInput = findViewById(R.id.phoneInput);
+        togglePassword = findViewById(R.id.togglePassword);
+        toggleConfirmPassword = findViewById(R.id.toggleConfirmPassword);
         signUpButton = findViewById(R.id.signupButton);
         backButton = findViewById(R.id.backButton);
-        nextButton = findViewById(R.id.nextButton);
 
         // extras from InputActivity
         age = getIntent().getStringExtra("age");
@@ -48,6 +53,11 @@ public class SignUpActivity extends AppCompatActivity {
         gender = getIntent().getStringExtra("gender");
         goalType = getIntent().getStringExtra("goalType");
         bmrResult = getIntent().getStringExtra("bmrResult");
+        dailyCalorie = getIntent().getIntExtra("dailyCalorie", 1340);
+
+        // Password toggle listeners
+        togglePassword.setOnClickListener(v -> togglePasswordVisibility(passwordInput, togglePassword));
+        toggleConfirmPassword.setOnClickListener(v -> togglePasswordVisibility(confirmPasswordInput, toggleConfirmPassword));
 
         // Email signup handler
         signUpButton.setOnClickListener(v -> signUpWithEmail());
@@ -57,16 +67,17 @@ public class SignUpActivity extends AppCompatActivity {
             startActivity(new Intent(SignUpActivity.this, InputActivity.class));
             finish();
         });
+    }
 
-        // Next -> only after successful signup
-        nextButton.setOnClickListener(v -> {
-            if (isSignupSuccessful) {
-                startActivity(new Intent(SignUpActivity.this, LoadingActivity.class));
-                finish();
-            } else {
-                Toast.makeText(this, "Please complete sign-up first", Toast.LENGTH_SHORT).show();
-            }
-        });
+    private void togglePasswordVisibility(EditText passwordField, ImageView toggleIcon) {
+        if (passwordField.getTransformationMethod() instanceof PasswordTransformationMethod) {
+            passwordField.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+            toggleIcon.setImageResource(R.drawable.ic_eye_open); // eye open icon
+        } else {
+            passwordField.setTransformationMethod(PasswordTransformationMethod.getInstance());
+            toggleIcon.setImageResource(R.drawable.ic_eye_closed); // eye closed icon
+        }
+        passwordField.setSelection(passwordField.getText().length()); // move cursor to end
     }
 
     // ---------------- Email signup ----------------
@@ -81,11 +92,19 @@ public class SignUpActivity extends AppCompatActivity {
             Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
             return;
         }
+
         if (!password.equals(confirmPassword)) {
             Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        // ---------------- Mobile Number Validation ----------------
+        if (!phone.matches("[6-9][0-9]{9}")) {
+            Toast.makeText(this, "Please enter a valid 10-digit mobile number", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // ---------------- Proceed with Firebase Signup ----------------
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -119,6 +138,7 @@ public class SignUpActivity extends AppCompatActivity {
         userData.put("gender", gender != null ? gender : "");
         userData.put("goalType", goalType != null ? goalType : "");
         userData.put("bmrResult", bmrResult != null ? bmrResult : "");
+        userData.put("dailyCalorie", dailyCalorie);
 
         FirebaseFirestore.getInstance().collection("users").document(uid)
                 .set(userData)
@@ -127,7 +147,9 @@ public class SignUpActivity extends AppCompatActivity {
                     Toast.makeText(this, "Sign up successful", Toast.LENGTH_SHORT).show();
                     isSignupSuccessful = true;
                     if (redirect) {
-                        startActivity(new Intent(SignUpActivity.this, LoadingActivity.class));
+                        Intent intent = new Intent(SignUpActivity.this, LoadingActivity.class);
+                        intent.putExtra("dailyCalorie", dailyCalorie);
+                        startActivity(intent);
                         finish();
                     }
                 })

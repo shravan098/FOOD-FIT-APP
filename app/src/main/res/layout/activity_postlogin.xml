@@ -35,6 +35,21 @@
         android:layout_marginTop="32dp"
         android:layout_marginStart="24dp"/>
 
+    <ImageButton
+        android:id="@+id/btnScanFood"
+        android:layout_width="45dp"
+        android:layout_height="33dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="80dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="Scan Food"
+        android:padding="8dp"
+        android:src="@drawable/ic_baseline_camera_alt_24"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@android:color/white"
+        tools:ignore="HardcodedText,TouchTargetSizeCheck" />
+
     <ImageView
         android:id="@+id/calendarIcon"
         android:layout_width="28dp"

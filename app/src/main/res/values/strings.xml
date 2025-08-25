@@ -104,4 +104,7 @@
     <string name="water">Water</string>
     <string name="_0_9">0/9</string>
     <string name="tod6o">TODO</string>
+    <string name="toggle_confirm_password">h</string>
+    <string name="toggle_password">k</string>
+    <string name="selected_image">Selected Image</string>
 </resources>
