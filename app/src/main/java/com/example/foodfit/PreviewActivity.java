@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Base64;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -81,23 +82,23 @@ public class PreviewActivity extends AppCompatActivity {
 
         btnDone.setOnClickListener(v -> {
             if (finalBitmap != null) {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                finalBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                byte[] imageBytes = baos.toByteArray();
-
-                Toast.makeText(this, "📤 Sending image to server...", Toast.LENGTH_SHORT).show();
-
-                // TODO: Replace with actual API call or loading screen
-                Intent resultIntent = new Intent();
-                resultIntent.putExtra("imageBytes", imageBytes);
-                startActivity(resultIntent);
+                String base64Image = convertBitmapToBase64(finalBitmap);
+                Intent loadingIntent = new Intent(PreviewActivity.this, LoadingActivity2.class);
+                loadingIntent.putExtra("base64Image", base64Image);
+                startActivity(loadingIntent);
             } else {
                 Toast.makeText(this, "⚠️ No image to process", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    // Convert Bitmap to Uri for cropping
+    private String convertBitmapToBase64(Bitmap bitmap) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        byte[] imageBytes = baos.toByteArray();
+        return Base64.encodeToString(imageBytes, Base64.NO_WRAP);
+    }
+
     private Uri getImageUri(Bitmap bitmap) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
@@ -105,23 +106,28 @@ public class PreviewActivity extends AppCompatActivity {
         return Uri.parse(path);
     }
 
-    // Handle cropped image result
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == UCrop.REQUEST_CROP && resultCode == RESULT_OK) {
             Uri resultUri = UCrop.getOutput(data);
-            try {
-                InputStream inputStream = getContentResolver().openInputStream(resultUri);
-                Bitmap croppedBitmap = BitmapFactory.decodeStream(inputStream);
-                finalBitmap = croppedBitmap;
-                imagePreview.setImageBitmap(croppedBitmap);
-                Toast.makeText(this, "✅ Image cropped!", Toast.LENGTH_SHORT).show();
-            } catch (Exception e) {
-                e.printStackTrace();
-                Toast.makeText(this, "❌ Failed to load cropped image", Toast.LENGTH_SHORT).show();
-            }
+            new Thread(() -> {
+                try {
+                    InputStream inputStream = getContentResolver().openInputStream(resultUri);
+                    Bitmap croppedBitmap = BitmapFactory.decodeStream(inputStream);
+                    runOnUiThread(() -> {
+                        finalBitmap = croppedBitmap;
+                        imagePreview.setImageBitmap(croppedBitmap);
+                        Toast.makeText(PreviewActivity.this, "✅ Image cropped!", Toast.LENGTH_SHORT).show();
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    runOnUiThread(() ->
+                            Toast.makeText(PreviewActivity.this, "❌ Failed to load cropped image", Toast.LENGTH_SHORT).show()
+                    );
+                }
+            }).start();
         } else if (resultCode == UCrop.RESULT_ERROR) {
             Throwable cropError = UCrop.getError(data);
             Toast.makeText(this, "⚠️ Crop error: " + cropError.getMessage(), Toast.LENGTH_SHORT).show();

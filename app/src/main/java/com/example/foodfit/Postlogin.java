@@ -1,29 +1,36 @@
 package com.example.foodfit;
 
+
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.animation.ValueAnimator;
+import android.Manifest;
+import android.content.pm.PackageManager;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import android.animation.ValueAnimator;
+import androidx.core.content.ContextCompat;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.activity.result.PickVisualMediaRequest;
 
 import java.util.Calendar;
 
 public class Postlogin extends AppCompatActivity {
-
+    private ActivityResultLauncher<String> cameraPermissionLauncher;
     private LinearLayout homeSection, profileSection;
     private TextView homeText, profileText, caloriesText, waterCountText;
     private ImageView homeIcon, profileIcon, calendarIcon, addWaterBtn;
-
+    private ActivityResultLauncher<PickVisualMediaRequest> galleryPickerLauncher;
     // Meal add (+) icons
     private ImageView addBreakfastBtn, addLunchBtn, addDinnerBtn;
 
@@ -36,8 +43,10 @@ public class Postlogin extends AppCompatActivity {
 
     // Request codes
     private static final int REQUEST_CAMERA = 100;
-    private static final int REQUEST_GALLERY = 101;
-
+    private void launchCameraIntent() {
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(cameraIntent, REQUEST_CAMERA);
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,7 +76,30 @@ public class Postlogin extends AppCompatActivity {
         updateWaterUI();
 
         calendarIcon.setOnClickListener(v -> openCalendar());
-
+        cameraPermissionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(),
+                isGranted -> {
+                    if (isGranted) {
+                        launchCameraIntent();
+                    } else {
+                        Toast.makeText(this, "⚠️ Camera permission denied", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
+        galleryPickerLauncher = registerForActivityResult(
+                new ActivityResultContracts.PickVisualMedia(),
+                uri -> {
+                    if (uri != null) {
+                        Toast.makeText(this, "🖼 Image selected from Gallery!", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(Postlogin.this, PreviewActivity.class);
+                        intent.putExtra("fromCamera", false);
+                        intent.putExtra("imageUri", uri.toString());
+                        startActivity(intent);
+                    } else {
+                        Toast.makeText(this, "⚠️ No image selected", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
         addWaterBtn.setOnClickListener(v -> {
             if (waterCount < 9) {
                 waterCount++;
@@ -152,12 +184,19 @@ public class Postlogin extends AppCompatActivity {
         builder.setTitle("Select Option")
                 .setItems(options, (dialog, which) -> {
                     if (which == 0) {
-                        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                        startActivityForResult(cameraIntent, REQUEST_CAMERA);
+                        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                                == PackageManager.PERMISSION_GRANTED) {
+                            launchCameraIntent();
+                        } else {
+                            cameraPermissionLauncher.launch(Manifest.permission.CAMERA);
+                        }
 
                     } else if (which == 1) {
-                        Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                        startActivityForResult(galleryIntent, REQUEST_GALLERY);
+                        galleryPickerLauncher.launch(
+                                new PickVisualMediaRequest.Builder()
+                                        .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                                        .build()
+                        );
 
                     } else {
                         dialog.dismiss();
@@ -180,14 +219,6 @@ public class Postlogin extends AppCompatActivity {
                 intent.putExtra("cameraBitmap", photo);
                 startActivity(intent);
 
-            } else if (requestCode == REQUEST_GALLERY) {
-                Uri selectedImage = data.getData();
-                Toast.makeText(this, "🖼 Image selected from Gallery!", Toast.LENGTH_SHORT).show();
-
-                Intent intent = new Intent(Postlogin.this, PreviewActivity.class);
-                intent.putExtra("fromCamera", false);
-                intent.putExtra("imageUri", selectedImage.toString());
-                startActivity(intent);
             }
         }
     }

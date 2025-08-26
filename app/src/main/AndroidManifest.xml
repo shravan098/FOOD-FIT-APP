@@ -1,8 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- ✅ Internet access for API calls -->
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- ✅ Camera access -->
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- ✅ Scoped media access -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
     <application
         android:icon="@mipmap/ic_launcher"
@@ -13,7 +23,7 @@
         android:fullBackupContent="@xml/backup_rules"
         android:dataExtractionRules="@xml/data_extraction_rules">
 
-        <!-- 🟢 SplashActivity is now the launcher -->
+        <!-- 🟢 Launcher -->
         <activity
             android:name=".SplashActivity"
             android:exported="true"
@@ -25,59 +35,33 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".PlanSelectionActivity"
-            android:exported="true"
-            android:theme="@style/Theme.FOODFIT" />
-        <activity
-            android:name=".InputActivity"
-            android:exported="true"
-            android:theme="@style/Theme.FOODFIT" />
-        <activity
-            android:name=".SignInActivity"
-            android:exported="true"
-            android:theme="@style/Theme.FOODFIT" />
-        <activity
-            android:name=".ForgotPasswordActivity"
-            android:exported="true"
-            android:theme="@style/Theme.FOODFIT" />
-        <activity
-            android:name=".ResetPasswordActivity"
-            android:exported="true"
-            android:theme="@style/Theme.FOODFIT" />
+        <!-- 🔐 Auth Flow -->
+        <activity android:name=".SignInActivity" android:exported="true" android:theme="@style/Theme.FOODFIT" />
+        <activity android:name=".SignUpActivity" android:exported="true" android:theme="@style/Theme.FOODFIT" />
+        <activity android:name=".ForgotPasswordActivity" android:exported="true" android:theme="@style/Theme.FOODFIT" />
+        <activity android:name=".ResetPasswordActivity" android:exported="true" android:theme="@style/Theme.FOODFIT" />
+        <activity android:name=".ForgotUsernameActivity" android:exported="true" android:theme="@style/Theme.FOODFIT" />
+        <activity android:name=".ResetUsernameActivity" android:exported="true" android:theme="@style/Theme.FOODFIT" />
 
-        <!-- 🆕 Added ResetUsernameActivity -->
-        <activity
-            android:name=".ResetUsernameActivity"
-            android:exported="true"
-            android:theme="@style/Theme.FOODFIT" />
+        <!-- 🧠 App Flow -->
+        <activity android:name=".MainActivity" android:exported="true" android:theme="@style/Theme.FOODFIT" />
+        <activity android:name=".Postlogin" android:exported="true" android:theme="@style/Theme.FOODFIT" />
+        <activity android:name=".PlanSelectionActivity" android:exported="true" android:theme="@style/Theme.FOODFIT" />
+        <activity android:name=".InputActivity" android:exported="true" android:theme="@style/Theme.FOODFIT" />
+        <activity android:name=".FoodSearchActivity" android:exported="true" android:theme="@style/Theme.FOODFIT" />
 
-        <!-- 🆕 Added ForgotUsernameActivity -->
-        <activity
-            android:name=".ForgotUsernameActivity"
-            android:exported="true"
-            android:theme="@style/Theme.FOODFIT" />
-        <activity
-            android:name=".LoadingActivity"
-            android:exported="true"
-            android:theme="@style/Theme.FOODFIT" />
-        <activity
-            android:name=".Postlogin"
-            android:exported="true"
-            android:theme="@style/Theme.FOODFIT" />
-        <activity
-            android:name=".SignUpActivity"
-            android:exported="true"
-            android:theme="@style/Theme.FOODFIT" />
-        <activity
-            android:name=".FoodSearchActivity"
-            android:exported="true"
-            android:theme="@style/Theme.FOODFIT" />
-        <activity
-            android:name=".MainActivity"
-            android:exported="true"
-            android:theme="@style/Theme.FOODFIT" />
+        <!-- 📸 Image Flow -->
+        <activity android:name=".PreviewActivity" android:exported="true" android:theme="@style/Theme.FOODFIT" />
+        <activity android:name=".LoadingActivity" android:exported="true" android:theme="@style/Theme.FOODFIT" />
+        <activity android:name=".LoadingActivity2" android:exported="true" android:theme="@style/Theme.FOODFIT" />
+        <activity android:name=".ResultActivity" android:exported="true" android:theme="@style/Theme.FOODFIT" />
 
+        <!-- ✅ uCrop cropping screen -->
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:exported="false"
+            android:screenOrientation="unspecified"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            tools:ignore="DiscouragedApi" />
     </application>
-
 </manifest>

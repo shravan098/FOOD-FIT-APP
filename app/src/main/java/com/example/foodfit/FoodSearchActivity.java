@@ -67,7 +67,7 @@ public class FoodSearchActivity extends AppCompatActivity {
 
     private void searchFood(String query, FoodAdapter adapter, TextView placeholderMessage) {
         Log.d(TAG, "Making API call for: " + query);
-        RetrofitClient.getService().searchFoods(query, API_KEY).enqueue(new Callback<>() {
+        RetrofitClient.getUSDAService().searchFoods(query, API_KEY).enqueue(new Callback<>() {
             @Override
             public void onResponse(@NonNull Call<FoodSearchResponse> call, @NonNull Response<FoodSearchResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
