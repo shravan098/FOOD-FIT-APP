@@ -23,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
         TextView resultView = findViewById(R.id.resultView);
         resultView.setText(getString(R.string.searching_text));
 
+        // Get data from intent
         String foodDescription = getIntent().getStringExtra("foodDescription");
         String nutrientJson = getIntent().getStringExtra("nutrients");
 
@@ -38,10 +39,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (nutrients != null && !nutrients.isEmpty()) {
+            // ✅ Show nutrients normally
             resultView.setText(formatKeyNutrients(foodDescription, nutrients));
         } else {
-            resultView.setText(getString(R.string.no_data_found));
-            Log.e(TAG, "Nutrients list is null or empty");
+            // ✅ No data passed → show friendly message instead of error
+            resultView.setText("🔎 Please search for a food item to see nutrients");
+            Log.w(TAG, "No nutrient data passed, waiting for user to search");
         }
     }
 

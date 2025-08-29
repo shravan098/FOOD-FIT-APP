@@ -53,7 +53,7 @@ public class SignUpActivity extends AppCompatActivity {
         gender = getIntent().getStringExtra("gender");
         goalType = getIntent().getStringExtra("goalType");
         bmrResult = getIntent().getStringExtra("bmrResult");
-        dailyCalorie = getIntent().getIntExtra("dailyCalorie", 1340);
+        dailyCalorie = getIntent().getIntExtra("dailyCalorie", 0);
 
         // Password toggle listeners
         togglePassword.setOnClickListener(v -> togglePasswordVisibility(passwordInput, togglePassword));
@@ -146,8 +146,17 @@ public class SignUpActivity extends AppCompatActivity {
                     Log.d(TAG, "User data saved to Firestore for uid=" + uid);
                     Toast.makeText(this, "Sign up successful", Toast.LENGTH_SHORT).show();
                     isSignupSuccessful = true;
+
+                    // ✅ Fix: SharedPreferences update (important for Splash redirection)
+                    getSharedPreferences("FoodFitPrefs", MODE_PRIVATE)
+                            .edit()
+                            .putBoolean("isSignedUp", true)
+                            .putLong("lastLoginTime", System.currentTimeMillis())
+                            .apply();
+
                     if (redirect) {
-                        Intent intent = new Intent(SignUpActivity.this, LoadingActivity.class);
+                        // ✅ Redirect to Postlogin (instead of going back to PlanSelection)
+                        Intent intent = new Intent(SignUpActivity.this, Postlogin.class);
                         intent.putExtra("dailyCalorie", dailyCalorie);
                         startActivity(intent);
                         finish();
