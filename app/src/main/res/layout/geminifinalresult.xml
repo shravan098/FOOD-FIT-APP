@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F5F5">
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            android:elevation="4dp"
+            android:layout_margin="16dp">
+
+            <!-- Food Name -->
+            <TextView
+                android:id="@+id/foodNameText"
+                android:text="🍎 Apple"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="#212121"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingBottom="12dp"/>
+
+            <!-- 🔹 User input for grams -->
+            <EditText
+                android:id="@+id/weightInput"
+                android:hint="Enter weight in grams (default 100g)"
+                android:inputType="numberDecimal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:background="@android:drawable/edit_text"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Calories -->
+            <TextView
+                android:id="@+id/caloriesText"
+                android:text="Calories: 95 kcal"
+                android:textSize="16sp"
+                android:textColor="#E53935"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingBottom="8dp"/>
+
+            <!-- Protein -->
+            <TextView
+                android:id="@+id/proteinText"
+                android:text="Protein: 0.5g"
+                android:textSize="16sp"
+                android:textColor="#1E88E5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingBottom="8dp"/>
+
+            <!-- Fat -->
+            <TextView
+                android:id="@+id/fatText"
+                android:text="Fat: 0.3g"
+                android:textSize="16sp"
+                android:textColor="#FB8C00"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingBottom="8dp"/>
+
+            <!-- Carbs -->
+            <TextView
+                android:id="@+id/carbsText"
+                android:text="Carbs: 25g"
+                android:textSize="16sp"
+                android:textColor="#43A047"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingBottom="8dp"/>
+
+            <!-- Health Insights -->
+            <TextView
+                android:id="@+id/healthInsightsText"
+                android:text="Good source of fiber and vitamin C."
+                android:textSize="15sp"
+                android:textStyle="italic"
+                android:textColor="#424242"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="10dp"
+                android:paddingBottom="8dp"/>
+
+            <!-- Processing Level -->
+            <TextView
+                android:id="@+id/processingLevelText"
+                android:text="Processing: Natural / Unprocessed"
+                android:textSize="15sp"
+                android:textColor="#6A1B9A"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingBottom="8dp"/>
+
+            <!-- Cultural Origin -->
+            <TextView
+                android:id="@+id/culturalOriginText"
+                android:text="Cultural Origin: Central Asia"
+                android:textSize="15sp"
+                android:textColor="#00897B"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingBottom="8dp"/>
+
+            <!-- Ingredient Breakdown -->
+            <TextView
+                android:id="@+id/ingredientBreakdownText"
+                android:text="Ingredients: Apple"
+                android:textSize="15sp"
+                android:textColor="#455A64"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingBottom="8dp"/>
+            <Button
+                android:id="@+id/addToMealBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Add to Meal"
+                android:textAllCaps="false"
+                android:backgroundTint="#4CAF50"
+                android:textColor="@android:color/white"
+                android:layout_marginTop="20dp"
+                android:padding="12dp"
+                android:elevation="4dp"/>
+        </LinearLayout>
+
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

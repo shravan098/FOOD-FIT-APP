@@ -52,21 +52,6 @@
     <!-- Top Bar -->
 
 
-    <ImageButton
-        android:id="@+id/btnScanFood"
-        android:layout_width="45dp"
-        android:layout_height="33dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="164dp"
-        android:background="@android:color/transparent"
-        android:contentDescription="Scan Food"
-        android:padding="8dp"
-        android:src="@drawable/ic_baseline_camera_alt_24"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tint="@android:color/white"
-        tools:ignore="HardcodedText,TouchTargetSizeCheck" />
-
     <ImageView
         android:id="@+id/calendarIcon"
         android:layout_width="28dp"
@@ -421,16 +406,5 @@
                 android:textSize="16sp"/>
         </LinearLayout>
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/scanFoodText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Click here to scan the food"
-        android:textColor="#FFFFFF"
-        android:textSize="14sp"
-        tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="145dp"
-        tools:layout_editor_absoluteY="16dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

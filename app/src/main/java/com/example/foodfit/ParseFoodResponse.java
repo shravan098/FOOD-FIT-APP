@@ -9,7 +9,17 @@ public class ParseFoodResponse {
         FoodResponse response = new FoodResponse();
 
         try {
-            // assume Gemini rawText JSON format me aata hai
+            // 🔹 Debug log (raw response print)
+            System.out.println("🔍 Gemini Raw Response: " + rawText);
+
+            // 🔹 Agar Gemini ne extra text bhej diya, sirf { ... } part nikal lo
+            int start = rawText.indexOf("{");
+            int end = rawText.lastIndexOf("}");
+            if (start != -1 && end != -1 && end > start) {
+                rawText = rawText.substring(start, end + 1);
+            }
+
+            // ✅ Parse JSON
             JSONObject json = new JSONObject(rawText);
 
             // 🔹 Basic info
@@ -37,7 +47,7 @@ public class ParseFoodResponse {
             response.setFoodName("Unknown Food");
             response.setHealthInsights(rawText); // pura text dal dena
 
-            // ✅ Yaha dummy nutrients bhi set kar dete hain
+            // ✅ Dummy nutrients
             FoodResponse.Nutrients nutrients = new FoodResponse.Nutrients();
             nutrients.setCalories("0");
             nutrients.setProtein("0g");

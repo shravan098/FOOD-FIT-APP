@@ -72,7 +72,7 @@ public class PreviewActivity extends AppCompatActivity {
                 UCrop.of(originalUri, destinationUri)
                         .withAspectRatio(1, 1)
                         .withMaxResultSize(800, 800)
-                        .start(PreviewActivity.this);
+                        .start(PreviewActivity.this); // ✅ Direct UCrop start
             } else {
                 Toast.makeText(this, "⚠️ No image to crop", Toast.LENGTH_SHORT).show();
             }
@@ -106,31 +106,33 @@ public class PreviewActivity extends AppCompatActivity {
         return Uri.parse(path);
     }
 
+    // ✅ UCrop result handle yaha hoga
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == UCrop.REQUEST_CROP && resultCode == RESULT_OK) {
-            Uri resultUri = UCrop.getOutput(data);
-            new Thread(() -> {
-                try {
-                    InputStream inputStream = getContentResolver().openInputStream(resultUri);
-                    Bitmap croppedBitmap = BitmapFactory.decodeStream(inputStream);
-                    runOnUiThread(() -> {
+        if (requestCode == UCrop.REQUEST_CROP) {
+            if (resultCode == RESULT_OK && data != null) {
+                Uri resultUri = UCrop.getOutput(data);
+                if (resultUri != null) {
+                    try {
+                        InputStream inputStream = getContentResolver().openInputStream(resultUri);
+                        Bitmap croppedBitmap = BitmapFactory.decodeStream(inputStream);
                         finalBitmap = croppedBitmap;
                         imagePreview.setImageBitmap(croppedBitmap);
-                        Toast.makeText(PreviewActivity.this, "✅ Image cropped!", Toast.LENGTH_SHORT).show();
-                    });
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    runOnUiThread(() ->
-                            Toast.makeText(PreviewActivity.this, "❌ Failed to load cropped image", Toast.LENGTH_SHORT).show()
-                    );
+                        Toast.makeText(this, "✅ Image cropped!", Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(this, "❌ Failed to load cropped image", Toast.LENGTH_SHORT).show();
+                    }
                 }
-            }).start();
-        } else if (resultCode == UCrop.RESULT_ERROR) {
-            Throwable cropError = UCrop.getError(data);
-            Toast.makeText(this, "⚠️ Crop error: " + cropError.getMessage(), Toast.LENGTH_SHORT).show();
+            } else if (resultCode == RESULT_CANCELED) {
+                // User pressed cancel
+                Toast.makeText(this, "⚠️ Crop cancelled", Toast.LENGTH_SHORT).show();
+            } else if (resultCode == UCrop.RESULT_ERROR && data != null) {
+                Throwable cropError = UCrop.getError(data);
+                Toast.makeText(this, "⚠️ Crop error: " + (cropError != null ? cropError.getMessage() : ""), Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }

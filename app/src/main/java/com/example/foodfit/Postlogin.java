@@ -3,25 +3,15 @@ package com.example.foodfit;
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.animation.ValueAnimator;
-import android.Manifest;
-import android.content.pm.PackageManager;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.activity.result.PickVisualMediaRequest;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
@@ -29,28 +19,25 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
-// Add impor
+
 import java.util.Calendar;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
+
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 public class Postlogin extends AppCompatActivity {
-    private ActivityResultLauncher<String> cameraPermissionLauncher;
+
     private LinearLayout homeSection, profileSection;
     private TextView homeText, profileText, caloriesText, waterCountText;
     private ImageView homeIcon, profileIcon, calendarIcon, addWaterBtn;
-    private ActivityResultLauncher<PickVisualMediaRequest> galleryPickerLauncher;
 
     // Meal add (+) icons
     private ImageView addBreakfastBtn, addLunchBtn, addDinnerBtn;
 
     // Meal calorie TextViews
     private TextView breakfastCaloriesText, lunchCaloriesText, dinnerCaloriesText;
-
-    // 🔹 New: Scan Food button
-    private ImageView btnScanFood;
 
     private int waterCount = 0;
     private int waterTarget = 9; // default
@@ -66,18 +53,10 @@ public class Postlogin extends AppCompatActivity {
     private DatabaseReference dbRef;
     private String userId;
 
-    // Request codes
-    private static final int REQUEST_CAMERA = 100;
-
     private FirebaseFirestore firestore;
-    private void launchCameraIntent() {
-        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(cameraIntent, REQUEST_CAMERA);
-    }
 
     @SuppressLint("MissingInflatedId")
     @Override
-
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_postlogin);
@@ -94,35 +73,10 @@ public class Postlogin extends AppCompatActivity {
 
         initViews();
 
-        // ✅ sirf ye call karna hai, baaki sab iske andar hoga
+        // ✅ profile load karo
         loadUserProfileFromFirestore();
 
         calendarIcon.setOnClickListener(v -> openCalendar());
-        cameraPermissionLauncher = registerForActivityResult(
-                new ActivityResultContracts.RequestPermission(),
-                isGranted -> {
-                    if (isGranted) {
-                        launchCameraIntent();
-                    } else {
-                        Toast.makeText(this, "⚠️ Camera permission denied", Toast.LENGTH_SHORT).show();
-                    }
-                }
-        );
-
-        galleryPickerLauncher = registerForActivityResult(
-                new ActivityResultContracts.PickVisualMedia(),
-                uri -> {
-                    if (uri != null) {
-                        Toast.makeText(this, "🖼 Image selected from Gallery!", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(Postlogin.this, PreviewActivity.class);
-                        intent.putExtra("fromCamera", false);
-                        intent.putExtra("imageUri", uri.toString());
-                        startActivity(intent);
-                    } else {
-                        Toast.makeText(this, "⚠️ No image selected", Toast.LENGTH_SHORT).show();
-                    }
-                }
-        );
 
         addWaterBtn.setOnClickListener(v -> {
             if (waterCount < waterTarget) {
@@ -133,7 +87,7 @@ public class Postlogin extends AppCompatActivity {
         });
 
         addBreakfastBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(Postlogin.this, FoodSearchActivity.class);
+            Intent intent = new Intent(Postlogin.this, BreakfastMealActivity.class);
             intent.putExtra("mealType", "breakfast");
             startActivity(intent);
         });
@@ -149,8 +103,6 @@ public class Postlogin extends AppCompatActivity {
             intent.putExtra("mealType", "dinner");
             startActivity(intent);
         });
-
-        btnScanFood.setOnClickListener(v -> showScanOptions());
 
         homeSection.setOnClickListener(v -> switchTab(true));
         profileSection.setOnClickListener(v -> switchTab(false));
@@ -178,9 +130,8 @@ public class Postlogin extends AppCompatActivity {
         breakfastCaloriesText = findViewById(R.id.breakfastCaloriesText);
         lunchCaloriesText = findViewById(R.id.lunchCaloriesText);
         dinnerCaloriesText = findViewById(R.id.dinnerCaloriesText);
-
-        btnScanFood = findViewById(R.id.btnScanFood);
     }
+
     private void calculateWaterTarget(int weightKg) {
         double waterMl = weightKg * 35;
         waterTarget = (int) Math.round(waterMl / 250.0);
@@ -199,9 +150,22 @@ public class Postlogin extends AppCompatActivity {
     }
 
     private void updateMealUI() {
+        // ✅ Breakfast realtime
         tvBreakfastTarget.setText("Target: " + breakfastTarget + " cal");
         breakfastCaloriesText.setText(breakfastConsumed + " / " + breakfastTarget + " kcal");
 
+        if (breakfastConsumed == breakfastTarget) {
+            breakfastCaloriesText.setTextColor(Color.GREEN);
+            breakfastCaloriesText.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+        } else if (breakfastConsumed > breakfastTarget + 50) {
+            breakfastCaloriesText.setTextColor(Color.RED);
+            breakfastCaloriesText.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.refs, 0);
+        } else {
+            breakfastCaloriesText.setTextColor(Color.WHITE);
+            breakfastCaloriesText.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+        }
+
+        // Lunch & Dinner
         tvLunchTarget.setText("Target: " + lunchTarget + " cal");
         lunchCaloriesText.setText(lunchConsumed + " / " + lunchTarget + " kcal");
 
@@ -211,23 +175,6 @@ public class Postlogin extends AppCompatActivity {
         caloriesText.setText(eatenCalorie + " / " + dailyCalorie);
     }
 
-    private void addFoodToMeal(String mealType, int foodCalories) {
-        switch (mealType) {
-            case "breakfast":
-                breakfastConsumed += foodCalories;
-                break;
-            case "lunch":
-                lunchConsumed += foodCalories;
-                break;
-            case "dinner":
-                dinnerConsumed += foodCalories;
-                break;
-        }
-        eatenCalorie += foodCalories;
-        updateCalorieUI();
-        updateMealUI();
-        saveMealProgressToFirebase();
-    }
     private void loadUserProfileFromFirestore() {
         firestore.collection("users").document(userId)
                 .get()
@@ -250,13 +197,12 @@ public class Postlogin extends AppCompatActivity {
                             }
                         }
 
-                        // ✅ Update targets & UI
                         calculateWaterTarget(weightKg);
                         allocateMealCalories();
                         updateCalorieUI();
                         updateWaterUI();
 
-                        // ✅ Load daily progress from Realtime DB
+                        // ✅ Meals load karo
                         loadMealProgressFromFirebase();
 
                         Toast.makeText(this, "✅ Profile loaded", Toast.LENGTH_SHORT).show();
@@ -291,14 +237,40 @@ public class Postlogin extends AppCompatActivity {
 
     private void loadMealProgressFromFirebase() {
         String today = getTodayDate();
-        DatabaseReference ref = dbRef.child(today);
 
-        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+        // ✅ Breakfast Firestore realtime listen
+        firestore.collection("users")
+                .document(userId)
+                .collection("meals")
+                .whereEqualTo("mealType", "Breakfast")
+                .addSnapshotListener((queryDocumentSnapshots, e) -> {
+                    if (e != null) {
+                        Toast.makeText(Postlogin.this, "❌ Breakfast listen failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    int totalBreakfast = 0;
+                    if (queryDocumentSnapshots != null) {
+                        for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                            String calStr = doc.getString("calories");
+                            if (calStr != null && !calStr.isEmpty()) {
+                                try {
+                                    totalBreakfast += (int) Double.parseDouble(calStr);
+                                } catch (NumberFormatException ex) {
+                                    ex.printStackTrace();
+                                }
+                            }
+                        }
+                    }
+                    breakfastConsumed = totalBreakfast;
+                    updateMealUI();
+                });
+
+        // ✅ Lunch & Dinner realtime DB
+        DatabaseReference ref = dbRef.child(today);
+        ref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-                    breakfastConsumed = snapshot.child("breakfastConsumed").getValue(Integer.class) != null ?
-                            snapshot.child("breakfastConsumed").getValue(Integer.class) : 0;
                     lunchConsumed = snapshot.child("lunchConsumed").getValue(Integer.class) != null ?
                             snapshot.child("lunchConsumed").getValue(Integer.class) : 0;
                     dinnerConsumed = snapshot.child("dinnerConsumed").getValue(Integer.class) != null ?
@@ -374,51 +346,5 @@ public class Postlogin extends AppCompatActivity {
             profileSection.setLayoutParams(profileParams);
         });
         animator.start();
-    }
-
-    private void showScanOptions() {
-        String[] options = {"📷 Camera", "🖼 Gallery", "❌ Cancel"};
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Select Option")
-                .setItems(options, (dialog, which) -> {
-                    if (which == 0) {
-                        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-                                == PackageManager.PERMISSION_GRANTED) {
-                            launchCameraIntent();
-                        } else {
-                            cameraPermissionLauncher.launch(Manifest.permission.CAMERA);
-                        }
-
-                    } else if (which == 1) {
-                        galleryPickerLauncher.launch(
-                                new PickVisualMediaRequest.Builder()
-                                        .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
-                                        .build()
-                        );
-
-                    } else {
-                        dialog.dismiss();
-                    }
-                });
-        builder.show();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == RESULT_OK && data != null) {
-            if (requestCode == REQUEST_CAMERA) {
-                Bitmap photo = (Bitmap) data.getExtras().get("data");
-                Toast.makeText(this, "📸 Camera photo captured!", Toast.LENGTH_SHORT).show();
-
-                Intent intent = new Intent(Postlogin.this, PreviewActivity.class);
-                intent.putExtra("fromCamera", true);
-                intent.putExtra("cameraBitmap", photo);
-                startActivity(intent);
-
-            }
-        }
     }
 }

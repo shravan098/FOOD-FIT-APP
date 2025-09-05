@@ -9,7 +9,25 @@ public class FoodRequest {
     public FoodRequest(String base64Image) {
         this.contents = List.of(
                 new Content(List.of(
-                        new Part("Analyze this food and give nutritional values"),
+                        new Part(
+                                // 🔹 Updated Prompt
+                                "Analyze this food image and return the nutritional information strictly for a 100 gram serving ONLY.\n\n" +
+                                        "Return the result strictly in the following JSON format only:\n\n" +
+                                        "{\n" +
+                                        "  \"foodName\": \"string\",\n" +
+                                        "  \"nutrients\": {\n" +
+                                        "    \"calories\": \"string\",\n" +
+                                        "    \"protein\": \"string\",\n" +
+                                        "    \"fat\": \"string\",\n" +
+                                        "    \"carbs\": \"string\"\n" +
+                                        "  },\n" +
+                                        "  \"healthInsights\": \"string\",\n" +
+                                        "  \"processingLevel\": \"string\",\n" +
+                                        "  \"culturalOrigin\": \"string\",\n" +
+                                        "  \"ingredientBreakdown\": \"string\"\n" +
+                                        "}\n\n" +
+                                        "❌ Do not include any explanation, notes, or text outside this JSON."
+                        ),
                         new Part(new InlineData("image/jpeg", base64Image))
                 ))
         );

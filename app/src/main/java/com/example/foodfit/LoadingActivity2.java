@@ -14,7 +14,7 @@ import retrofit2.Response;
 public class LoadingActivity2 extends AppCompatActivity {
 
     private ProgressBar progressBar;
-    private static final String API_KEY = "AIzaSyB5J_sDCtUnpBa8tDbn1cMu9bQy4y1WOwY"; // 👈 API key
+    private static final String API_KEY = "AIzaSyCOKudua-nrkRxnYKPlTRPhVSMIgVuWc7o"; // 👈 API key
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,11 +43,25 @@ public class LoadingActivity2 extends AppCompatActivity {
                     // 🔹 Raw Gemini text
                     String rawText = response.body().getText();
 
+                    // ⚡ CHECK: Agar Gemini ne bola "No results found"
+                    if (rawText.toLowerCase().contains("no results found")) {
+                        Toast.makeText(LoadingActivity2.this, "❌ No food detected in the image", Toast.LENGTH_LONG).show();
+                        finish();
+                        return;
+                    }
+
                     // 🔹 ParseFoodResponse class ka use karke parse karna
                     FoodResponse result = ParseFoodResponse.fromGeminiRaw(rawText);
 
-                    // 🔹 Next screen me bhejna
-                    Intent intent = new Intent(LoadingActivity2.this, ResultActivity.class);
+                    // ✅ Defensive check: Agar foodName null/empty hai
+                    if (result == null || result.getFoodName() == null || result.getFoodName().trim().isEmpty()) {
+                        Toast.makeText(LoadingActivity2.this, "❌ No recognizable food found", Toast.LENGTH_LONG).show();
+                        finish();
+                        return;
+                    }
+
+                    // ✅ Next screen me bhejna (GeminiFinalResultActivity)
+                    Intent intent = new Intent(LoadingActivity2.this, GeminiFinalResultActivity.class);
                     intent.putExtra("foodName", result.getFoodName());
                     intent.putExtra("calories", result.getNutrients().getCalories());
                     intent.putExtra("protein", result.getNutrients().getProtein());
@@ -57,6 +71,13 @@ public class LoadingActivity2 extends AppCompatActivity {
                     intent.putExtra("processingLevel", result.getProcessingLevel());
                     intent.putExtra("culturalOrigin", result.getCulturalOrigin());
                     intent.putExtra("ingredientBreakdown", result.getIngredientBreakdown());
+
+                    // ✅ (Optional) Agar mealType aaya ho pehle Activity se, to forward kar do
+                    String mealType = getIntent().getStringExtra("mealType");
+                    if (mealType != null) {
+                        intent.putExtra("mealType", mealType);
+                    }
+
                     startActivity(intent);
                     finish();
                 } else {
