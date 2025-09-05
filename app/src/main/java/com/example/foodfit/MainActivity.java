@@ -30,11 +30,11 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "Received description: " + foodDescription);
         Log.d(TAG, "Received nutrient JSON: " + nutrientJson);
 
-        List<Nutrient> nutrients = null;
+        List<USDANutrient> nutrients = null;
         if (nutrientJson != null && !nutrientJson.isEmpty()) {
             nutrients = new Gson().fromJson(
                     nutrientJson,
-                    new TypeToken<List<Nutrient>>() {}.getType()
+                    new TypeToken<List<USDANutrient>>() {}.getType()
             );
         }
 
@@ -48,10 +48,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private String formatKeyNutrients(String description, List<Nutrient> foodNutrients) {
+    private String formatKeyNutrients(String description, List<USDANutrient> foodNutrients) {
         StringBuilder builder = new StringBuilder("🥗 " + description + "\n\n");
 
-        for (Nutrient nutrient : foodNutrients) {
+        for (USDANutrient nutrient : foodNutrients) {
             String name = nutrient.getNutrientName().toLowerCase();
             if (name.contains("protein") || name.contains("fat") || name.contains("carbohydrate") ||
                     name.contains("fiber") || name.contains("energy") || name.contains("calorie")) {

@@ -11,20 +11,20 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder> {
+public class USDAFoodAdapter extends RecyclerView.Adapter<USDAFoodAdapter.FoodViewHolder> {
 
-    private final List<FoodItem> foodList = new ArrayList<>();
+    private final List<USDAFoodItem> foodList = new ArrayList<>();
     private final OnFoodClickListener clickListener;
 
     public interface OnFoodClickListener {
-        void onFoodClick(FoodItem item);
+        void onFoodClick(USDAFoodItem item);
     }
 
-    public FoodAdapter(OnFoodClickListener listener) {
+    public USDAFoodAdapter(OnFoodClickListener listener) {
         this.clickListener = listener;
     }
 
-    public void setData(List<FoodItem> items) {
+    public void setData(List<USDAFoodItem> items) {
         foodList.clear();
         foodList.addAll(items);
         notifyDataSetChanged();
@@ -39,7 +39,7 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull FoodViewHolder holder, int position) {
-        FoodItem item = foodList.get(position);
+        USDAFoodItem item = foodList.get(position);
         holder.foodName.setText(item.getDescription());
         holder.itemView.setOnClickListener(v -> clickListener.onFoodClick(item));
     }

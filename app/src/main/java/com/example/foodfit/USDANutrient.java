@@ -1,6 +1,6 @@
 package com.example.foodfit;
 
-public class Nutrient {
+public class USDANutrient {
     private String nutrientName;
     private float value;
 

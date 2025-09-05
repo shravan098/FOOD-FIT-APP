@@ -52,6 +52,10 @@
         <activity android:name=".FoodSearchActivity" android:exported="true" android:theme="@style/Theme.FOODFIT" />
         <activity android:name=".DinnerMealActivity" android:exported="true" android:theme="@style/Theme.FOODFIT" />
         <activity android:name=".GeminiFinalResultActivity" android:exported="true" android:theme="@style/Theme.FOODFIT" />
+        <activity android:name=".ProfileActivity" android:exported="true" android:theme="@style/Theme.FOODFIT" />
+        <activity android:name=".EditProfileActivity" android:exported="true" android:theme="@style/Theme.FOODFIT" />
+
+
 
         <!-- 📸 Image Flow -->
         <activity android:name=".PreviewActivity" android:exported="true" android:theme="@style/Theme.FOODFIT" />

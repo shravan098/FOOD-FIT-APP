@@ -9,6 +9,6 @@ public interface GeminiApi {
     @POST("v1beta/models/gemini-2.0-flash:generateContent")
     Call<GeminiRawResponse> analyzeFood(
             @Query("key") String apiKey,   // 👈 API key query param
-            @Body FoodRequest request
+            @Body GeminiFoodRequest request
     );
 }

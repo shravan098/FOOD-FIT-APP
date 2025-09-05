@@ -2,11 +2,11 @@ package com.example.foodfit;
 
 import java.util.List;
 
-public class FoodRequest {
+public class GeminiFoodRequest {
 
     private List<Content> contents;
 
-    public FoodRequest(String base64Image) {
+    public GeminiFoodRequest(String base64Image) {
         this.contents = List.of(
                 new Content(List.of(
                         new Part(

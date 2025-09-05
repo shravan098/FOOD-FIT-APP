@@ -11,8 +11,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import com.example.foodfit.BuildConfig; // ✅ Import BuildConfig
-
 public class LoadingActivity2 extends AppCompatActivity {
 
     private ProgressBar progressBar;
@@ -36,7 +34,7 @@ public class LoadingActivity2 extends AppCompatActivity {
 
     private void sendImageToGemini(String base64Image) {
         GeminiApi api = RetrofitClient.getGeminiService();
-        FoodRequest request = new FoodRequest(base64Image);
+        GeminiFoodRequest request = new GeminiFoodRequest(base64Image);
 
         api.analyzeFood(API_KEY, request).enqueue(new Callback<GeminiRawResponse>() {
             @Override

@@ -18,32 +18,20 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.Calendar;
-import java.text.SimpleDateFormat;
-import java.util.Locale;
 
 public class Postlogin extends AppCompatActivity {
 
     private LinearLayout homeSection, profileSection;
     private TextView homeText, profileText, caloriesText, waterCountText;
     private ImageView homeIcon, profileIcon, calendarIcon, addWaterBtn;
-
-    // Meal add (+) icons
     private ImageView addBreakfastBtn, addLunchBtn, addDinnerBtn;
-
-    // Meal calorie TextViews
     private TextView breakfastCaloriesText, lunchCaloriesText, dinnerCaloriesText;
-
-    private int waterCount = 0;
-    private int waterTarget = 9; // default
-    private int dailyCalorie = 0;
-    private int eatenCalorie = 0;
-
-    // Meal tracking
-    private int breakfastTarget, lunchTarget, dinnerTarget;
-    private int breakfastConsumed = 0, lunchConsumed = 0, dinnerConsumed = 0;
     private TextView tvBreakfastTarget, tvLunchTarget, tvDinnerTarget;
 
-    // Firebase
+    private int waterCount = 0, waterTarget = 9, dailyCalorie = 0, eatenCalorie = 0;
+    private int breakfastTarget, lunchTarget, dinnerTarget;
+    private int breakfastConsumed = 0, lunchConsumed = 0, dinnerConsumed = 0;
+
     private String userId;
     private FirebaseFirestore firestore;
 
@@ -54,47 +42,38 @@ public class Postlogin extends AppCompatActivity {
         setContentView(R.layout.activity_postlogin);
 
         userId = FirebaseAuth.getInstance().getUid();
-        if (userId == null) {
-            Toast.makeText(this, "User not logged in!", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
+        if (userId == null) { Toast.makeText(this, "User not logged in!", Toast.LENGTH_SHORT).show(); finish(); return; }
 
         firestore = FirebaseFirestore.getInstance();
         initViews();
-
-        // Load profile and meal data
         loadUserProfileFromFirestore();
 
         calendarIcon.setOnClickListener(v -> openCalendar());
+        addWaterBtn.setOnClickListener(v -> { if (waterCount < waterTarget) { waterCount++; updateWaterUI(); } });
 
-        addWaterBtn.setOnClickListener(v -> {
-            if (waterCount < waterTarget) {
-                waterCount++;
-                updateWaterUI();
-            }
-        });
-
-        addBreakfastBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(Postlogin.this, BreakfastMealActivity.class);
-            intent.putExtra("mealType", "breakfast");
-            startActivity(intent);
-        });
-
-        addLunchBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(Postlogin.this, Lunchmealactivity.class);
-            intent.putExtra("mealType", "lunch");
-            startActivity(intent);
-        });
-
-        addDinnerBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(Postlogin.this, DinnerMealActivity.class);
-            intent.putExtra("mealType", "dinner");
-            startActivity(intent);
-        });
+        addBreakfastBtn.setOnClickListener(v -> startMealActivity("breakfast", BreakfastMealActivity.class));
+        addLunchBtn.setOnClickListener(v -> startMealActivity("lunch", Lunchmealactivity.class));
+        addDinnerBtn.setOnClickListener(v -> startMealActivity("dinner", DinnerMealActivity.class));
 
         homeSection.setOnClickListener(v -> switchTab(true));
         profileSection.setOnClickListener(v -> switchTab(false));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Highlight home tab
+        homeText.setTextColor(Color.WHITE);
+        homeIcon.setColorFilter(Color.WHITE);
+        profileText.setTextColor(Color.parseColor("#80FFFFFF"));
+        profileIcon.setColorFilter(Color.parseColor("#80FFFFFF"));
+
+        LinearLayout.LayoutParams homeParams = (LinearLayout.LayoutParams) homeSection.getLayoutParams();
+        LinearLayout.LayoutParams profileParams = (LinearLayout.LayoutParams) profileSection.getLayoutParams();
+        homeParams.weight = 7;
+        profileParams.weight = 3;
+        homeSection.setLayoutParams(homeParams);
+        profileSection.setLayoutParams(profileParams);
     }
 
     private void initViews() {
@@ -115,40 +94,32 @@ public class Postlogin extends AppCompatActivity {
         tvBreakfastTarget = findViewById(R.id.tvBreakfastTarget);
         tvLunchTarget = findViewById(R.id.tvLunchTarget);
         tvDinnerTarget = findViewById(R.id.tvDinnerTarget);
-
         breakfastCaloriesText = findViewById(R.id.breakfastCaloriesText);
         lunchCaloriesText = findViewById(R.id.lunchCaloriesText);
         dinnerCaloriesText = findViewById(R.id.dinnerCaloriesText);
     }
 
-    private void calculateWaterTarget(int weightKg) {
-        double waterMl = weightKg * 35;
-        waterTarget = (int) Math.round(waterMl / 250.0);
+    private void startMealActivity(String type, Class<?> cls) {
+        Intent intent = new Intent(Postlogin.this, cls);
+        intent.putExtra("mealType", type);
+        startActivity(intent);
     }
 
-    private void allocateMealCalories() {
-        breakfastTarget = (int) (dailyCalorie * 0.3);
-        lunchTarget = (int) (dailyCalorie * 0.4);
-        dinnerTarget = dailyCalorie - (breakfastTarget + lunchTarget);
+    private void calculateWaterTarget(int weightKg) { waterTarget = (int) Math.round(weightKg * 35 / 250.0); }
 
+    private void allocateMealCalories() {
+        breakfastTarget = (int)(dailyCalorie*0.3);
+        lunchTarget = (int)(dailyCalorie*0.4);
+        dinnerTarget = dailyCalorie-(breakfastTarget+ lunchTarget);
         updateMealUI();
     }
 
-    private void updateCalorieUI() {
-        caloriesText.setText(eatenCalorie + " / " + dailyCalorie); // Eaten / Total
-    }
+    private void updateCalorieUI() { caloriesText.setText(eatenCalorie + " / " + dailyCalorie); }
 
     private void updateMealUI() {
-        // Breakfast
         updateSingleMealUI(tvBreakfastTarget, breakfastCaloriesText, breakfastConsumed, breakfastTarget);
-
-        // Lunch
         updateSingleMealUI(tvLunchTarget, lunchCaloriesText, lunchConsumed, lunchTarget);
-
-        // Dinner
         updateSingleMealUI(tvDinnerTarget, dinnerCaloriesText, dinnerConsumed, dinnerTarget);
-
-        // Update total calories
         eatenCalorie = breakfastConsumed + lunchConsumed + dinnerConsumed;
         updateCalorieUI();
     }
@@ -156,123 +127,101 @@ public class Postlogin extends AppCompatActivity {
     private void updateSingleMealUI(TextView targetTv, TextView consumedTv, int consumed, int target) {
         targetTv.setText("Target: " + target + " cal");
         consumedTv.setText(consumed + " / " + target + " kcal");
-
-        if (consumed == target) {
-            consumedTv.setTextColor(Color.GREEN);
-            consumedTv.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
-        } else if (consumed > target + 50) {
-            consumedTv.setTextColor(Color.RED);
-            consumedTv.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.refs, 0);
-        } else {
-            consumedTv.setTextColor(Color.WHITE);
-            consumedTv.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
-        }
+        if (consumed == target) consumedTv.setTextColor(Color.GREEN);
+        else if (consumed > target + 50) consumedTv.setTextColor(Color.RED);
+        else consumedTv.setTextColor(Color.WHITE);
     }
 
     private void loadUserProfileFromFirestore() {
         firestore.collection("users").document(userId)
                 .get()
                 .addOnSuccessListener(snapshot -> {
-                    if (snapshot.exists()) {
+                    if(snapshot.exists()) {
                         Long cal = snapshot.getLong("dailyCalorie");
-                        if (cal != null) dailyCalorie = cal.intValue();
+                        if(cal != null) dailyCalorie = cal.intValue();
 
+                        int weight = 70;
                         String weightStr = snapshot.getString("weight");
-                        int weightKg = 70; // default
-                        if (weightStr != null && !weightStr.isEmpty()) {
-                            try { weightKg = Integer.parseInt(weightStr); } catch (NumberFormatException e) { e.printStackTrace(); }
-                        }
+                        if(weightStr != null && !weightStr.isEmpty()) try { weight = Integer.parseInt(weightStr); } catch(Exception e){}
 
-                        calculateWaterTarget(weightKg);
+                        calculateWaterTarget(weight);
                         allocateMealCalories();
                         updateWaterUI();
-
-                        // Load meal progress realtime
                         loadMealProgressFromFirestore();
-
-                        Toast.makeText(this, "✅ Profile loaded", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(this, "⚠️ Profile not found in Firestore", Toast.LENGTH_SHORT).show();
                     }
-                })
-                .addOnFailureListener(e -> Toast.makeText(this, "❌ Failed to load profile: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                });
     }
 
     private void loadMealProgressFromFirestore() {
-        String[] meals = {"Breakfast", "Lunch", "Dinner"};
-        for (String mealType : meals) {
+        String[] meals = {"Breakfast","Lunch","Dinner"};
+        for(String mealType: meals){
             firestore.collection("users").document(userId).collection("meals")
                     .whereEqualTo("mealType", mealType)
-                    .addSnapshotListener((queryDocumentSnapshots, e) -> {
-                        if (e != null) {
-                            Toast.makeText(Postlogin.this, "❌ " + mealType + " listen failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-
-                        int totalCalories = 0;
-                        if (queryDocumentSnapshots != null) {
-                            for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                    .addSnapshotListener((snapshots, e) -> {
+                        if(e != null) return;
+                        int total = 0;
+                        if(snapshots != null){
+                            for(DocumentSnapshot doc: snapshots){
                                 String calStr = doc.getString("calories");
-                                if (calStr != null && !calStr.isEmpty()) {
-                                    try { totalCalories += (int) Double.parseDouble(calStr); } catch (NumberFormatException ex) { ex.printStackTrace(); }
-                                }
+                                if(calStr != null && !calStr.isEmpty()) total += (int)Double.parseDouble(calStr);
                             }
                         }
-
-                        switch (mealType) {
-                            case "Breakfast": breakfastConsumed = totalCalories; break;
-                            case "Lunch": lunchConsumed = totalCalories; break;
-                            case "Dinner": dinnerConsumed = totalCalories; break;
+                        switch(mealType){
+                            case "Breakfast": breakfastConsumed = total; break;
+                            case "Lunch": lunchConsumed = total; break;
+                            case "Dinner": dinnerConsumed = total; break;
                         }
-
-                        // Update UI including total calories
                         updateMealUI();
                     });
         }
     }
 
-    private void updateWaterUI() {
-        waterCountText.setText(waterCount + "/" + waterTarget);
-    }
+    private void updateWaterUI() { waterCountText.setText(waterCount + "/" + waterTarget); }
 
     private void openCalendar() {
         Calendar c = Calendar.getInstance();
-        int year = c.get(Calendar.YEAR);
-        int month = c.get(Calendar.MONTH);
-        int day = c.get(Calendar.DAY_OF_MONTH);
-        DatePickerDialog datePickerDialog = new DatePickerDialog(
-                this,
-                (view, year1, month1, dayOfMonth) ->
-                        calendarIcon.setContentDescription("Selected: " + dayOfMonth + "/" + (month1 + 1) + "/" + year1),
-                year, month, day);
-        datePickerDialog.show();
+        new DatePickerDialog(this,
+                (view, year, month, day) -> calendarIcon.setContentDescription("Selected: "+day+"/"+(month+1)+"/"+year),
+                c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
     }
 
-    private void switchTab(boolean isHome) {
+    private void switchTab(boolean isHome){
         LinearLayout.LayoutParams homeParams = (LinearLayout.LayoutParams) homeSection.getLayoutParams();
         LinearLayout.LayoutParams profileParams = (LinearLayout.LayoutParams) profileSection.getLayoutParams();
 
-        ValueAnimator animator = ValueAnimator.ofFloat(0f, 1f);
-        animator.setDuration(300);
+        ValueAnimator animator = ValueAnimator.ofFloat(0f,1f);
+        animator.setDuration(400);
+        animator.setInterpolator(new android.view.animation.OvershootInterpolator());
         animator.addUpdateListener(animation -> {
-            if (isHome) {
-                homeParams.weight = 7;
-                profileParams.weight = 3;
-                homeText.setTextColor(Color.WHITE);
-                homeIcon.setColorFilter(Color.WHITE);
-                profileText.setTextColor(Color.parseColor("#80FFFFFF"));
-                profileIcon.setColorFilter(Color.parseColor("#80FFFFFF"));
-            } else {
-                homeParams.weight = 3;
-                profileParams.weight = 7;
-                profileText.setTextColor(Color.WHITE);
-                profileIcon.setColorFilter(Color.WHITE);
-                homeText.setTextColor(Color.parseColor("#80FFFFFF"));
-                homeIcon.setColorFilter(Color.parseColor("#80FFFFFF"));
+            float fraction = (float) animation.getAnimatedValue();
+            if(isHome){
+                homeParams.weight = 3 + 4*fraction;
+                profileParams.weight = 7 - 4*fraction;
+            } else{
+                homeParams.weight = 7 - 4*fraction;
+                profileParams.weight = 3 + 4*fraction;
             }
             homeSection.setLayoutParams(homeParams);
             profileSection.setLayoutParams(profileParams);
+
+            homeText.setTextColor(isHome ? blendColors(Color.parseColor("#80FFFFFF"), Color.WHITE, fraction)
+                    : blendColors(Color.WHITE, Color.parseColor("#80FFFFFF"), fraction));
+            profileText.setTextColor(isHome ? blendColors(Color.WHITE, Color.parseColor("#80FFFFFF"), fraction)
+                    : blendColors(Color.parseColor("#80FFFFFF"), Color.WHITE, fraction));
+            homeIcon.setColorFilter(isHome ? blendColors(Color.parseColor("#80FFFFFF"), Color.WHITE, fraction)
+                    : blendColors(Color.WHITE, Color.parseColor("#80FFFFFF"), fraction));
+            profileIcon.setColorFilter(isHome ? blendColors(Color.WHITE, Color.parseColor("#80FFFFFF"), fraction)
+                    : blendColors(Color.parseColor("#80FFFFFF"), Color.WHITE, fraction));
         });
         animator.start();
+
+        if(!isHome) startActivity(new Intent(Postlogin.this, ProfileActivity.class));
+    }
+
+    private int blendColors(int from,int to,float fraction){
+        int r = (int)((Color.red(to)-Color.red(from))*fraction + Color.red(from));
+        int g = (int)((Color.green(to)-Color.green(from))*fraction + Color.green(from));
+        int b = (int)((Color.blue(to)-Color.blue(from))*fraction + Color.blue(from));
+        return Color.rgb(r,g,b);
     }
 }
