@@ -46,9 +46,11 @@
         <activity android:name=".MainActivity" android:exported="true" android:theme="@style/Theme.FOODFIT" />
         <activity android:name=".Postlogin" android:exported="true" android:theme="@style/Theme.FOODFIT" />
         <activity android:name=".BreakfastMealActivity" android:exported="true" android:theme="@style/Theme.FOODFIT" />
+        <activity android:name=".Lunchmealactivity" android:exported="true" android:theme="@style/Theme.FOODFIT" />
         <activity android:name=".PlanSelectionActivity" android:exported="true" android:theme="@style/Theme.FOODFIT" />
         <activity android:name=".InputActivity" android:exported="true" android:theme="@style/Theme.FOODFIT" />
         <activity android:name=".FoodSearchActivity" android:exported="true" android:theme="@style/Theme.FOODFIT" />
+        <activity android:name=".DinnerMealActivity" android:exported="true" android:theme="@style/Theme.FOODFIT" />
         <activity android:name=".GeminiFinalResultActivity" android:exported="true" android:theme="@style/Theme.FOODFIT" />
 
         <!-- 📸 Image Flow -->

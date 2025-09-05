@@ -75,88 +75,52 @@ public class InputActivity extends AppCompatActivity {
                 float weight = Float.parseFloat(weightStr);
                 float goalWeight = goalWeightStr.isEmpty() ? weight : Float.parseFloat(goalWeightStr);
 
-                if (age < 15 || age > 100) {
-                    resultText.setText("Please enter a valid age.");
-                    resultText.setVisibility(View.VISIBLE);
-                    return;
-                }
-                if (height < 50 || height > 250) {
-                    resultText.setText("Please enter a valid height.");
-                    resultText.setVisibility(View.VISIBLE);
-                    return;
-                }
-                if (weight < 20 || weight > 250) {
-                    resultText.setText("Please enter a valid weight.");
-                    resultText.setVisibility(View.VISIBLE);
-                    return;
-                }
+                // Validation
+                if (age < 15 || age > 100) { showError("Please enter a valid age."); return; }
+                if (height < 50 || height > 250) { showError("Please enter a valid height."); return; }
+                if (weight < 20 || weight > 250) { showError("Please enter a valid weight."); return; }
+                if (goalType.equals("lose weight") && goalWeight >= weight) { showError("Goal weight must be less than current weight."); return; }
+                if (goalType.equals("gain weight") && goalWeight <= weight) { showError("Goal weight must be greater than current weight."); return; }
 
-                if (goalType.equals("lose weight") && goalWeight >= weight) {
-                    resultText.setText("Goal weight must be less than current weight because you have selected Lose weight option.");
-                    resultText.setVisibility(View.VISIBLE);
-                    return;
-                }
-
-                if (goalType.equals("gain weight") && goalWeight <= weight) {
-                    resultText.setText("Goal weight must be greater than current weight because you have selected Gain weight option.");
-                    resultText.setVisibility(View.VISIBLE);
-                    return;
-                }
-
-                // BMR calculation
+                // ✅ BMR calculation
                 float bmr = gender.equalsIgnoreCase("male") ?
                         (10 * weight) + (6.25f * height) - (5 * age) + 5 :
                         (10 * weight) + (6.25f * height) - (5 * age) - 161;
 
-                float targetCalories;
-                String goalMessage;
+                // Activity factor (lightly active default)
+                float activityFactor = 1.375f;
+                float tdee = bmr * activityFactor;
 
+                // Adjust for goal
+                float dailyCalories;
+                String goalMessage;
                 switch (goalType) {
                     case "lose weight":
-                        targetCalories = bmr * 0.8f;
+                        dailyCalories = tdee - 500; // 500 kcal deficit
                         goalMessage = "To lose weight, consume around ";
                         break;
                     case "gain weight":
-                        targetCalories = bmr * 1.2f;
+                        dailyCalories = tdee + 500; // 500 kcal surplus
                         goalMessage = "To gain weight, consume around ";
                         break;
                     default:
-                        targetCalories = bmr;
+                        dailyCalories = tdee; // maintain
                         goalMessage = "To maintain your current weight, consume around ";
                         break;
                 }
 
-                String resultString = goalMessage + Math.round(targetCalories) + " calories/day.";
-                resultText.setText(resultString);
+                resultText.setText(goalMessage + Math.round(dailyCalories) + " calories/day.");
                 resultText.setVisibility(View.VISIBLE);
 
                 // 🔥 Firestore logging
-                SessionTracker.actions.add("Saved at " + System.currentTimeMillis());
-                SessionTracker.actions.add("Gender: " + gender);
-                SessionTracker.actions.add("Age: " + age);
-                SessionTracker.actions.add("Height: " + height);
-                SessionTracker.actions.add("Weight: " + weight);
-                SessionTracker.actions.add("Goal Weight: " + goalWeight);
-                SessionTracker.actions.add("Goal Type: " + goalType);
-                SessionTracker.actions.add("Recommended Intake: " + Math.round(targetCalories) + " kcal");
-
-                FirebaseFirestore db = FirebaseFirestore.getInstance();
-                Map<String, Object> sessionData = new HashMap<>();
-                sessionData.put("actions", new ArrayList<>(SessionTracker.actions));
-                sessionData.put("timestamp", System.currentTimeMillis());
-
-                db.collection("userSessions")
-                        .add(sessionData)
-                        .addOnSuccessListener(doc -> Log.d("Firestore", "Session saved with ID: " + doc.getId()))
-                        .addOnFailureListener(e -> Log.w("Firestore", "Error saving session", e));
+                logSession(age, height, weight, goalWeight, gender, goalType, Math.round(dailyCalories));
 
             } catch (NumberFormatException e) {
-                resultText.setText("Invalid number entered. Please check your inputs.");
-                resultText.setVisibility(View.VISIBLE);
+                showError("Invalid number entered. Please check your inputs.");
             }
         });
 
-        // ⏭️ Next Button → SignUpActivity with all data
+        // ⏭️ Next Button → SignUpActivity
         nextButton.setOnClickListener(v -> {
             String age = ageInput.getText().toString().trim();
             String height = heightInput.getText().toString().trim();
@@ -165,22 +129,19 @@ public class InputActivity extends AppCompatActivity {
             String gender = genderSpinner.getSelectedItem().toString();
             String bmrResult = resultText.getText().toString();
 
-            // ⚡ Calculate again to send dailyCalorie forward
+            // Recalculate daily calories
+            float weightF = Float.parseFloat(weight);
+            float heightF = Float.parseFloat(height);
+            float ageF = Float.parseFloat(age);
             float bmr = gender.equalsIgnoreCase("male") ?
-                    (10 * Float.parseFloat(weight)) + (6.25f * Float.parseFloat(height)) - (5 * Float.parseFloat(age)) + 5 :
-                    (10 * Float.parseFloat(weight)) + (6.25f * Float.parseFloat(height)) - (5 * Float.parseFloat(age)) - 161;
-
-            float targetCalories;
+                    (10 * weightF) + (6.25f * heightF) - (5 * ageF) + 5 :
+                    (10 * weightF) + (6.25f * heightF) - (5 * ageF) - 161;
+            float tdee = bmr * 1.375f;
+            float dailyCalories;
             switch (goalType) {
-                case "lose weight":
-                    targetCalories = bmr * 0.8f;
-                    break;
-                case "gain weight":
-                    targetCalories = bmr * 1.2f;
-                    break;
-                default:
-                    targetCalories = bmr;
-                    break;
+                case "lose weight": dailyCalories = tdee - 500; break;
+                case "gain weight": dailyCalories = tdee + 500; break;
+                default: dailyCalories = tdee; break;
             }
 
             Intent intent = new Intent(InputActivity.this, SignUpActivity.class);
@@ -191,14 +152,37 @@ public class InputActivity extends AppCompatActivity {
             intent.putExtra("gender", gender);
             intent.putExtra("goalType", goalType);
             intent.putExtra("bmrResult", bmrResult);
-
-            // ✅ Send dailyCalorie value
-            intent.putExtra("dailyCalorie", Math.round(targetCalories));
+            intent.putExtra("dailyCalorie", Math.round(dailyCalories));
 
             SessionTracker.actions.add("Clicked Next button at " + System.currentTimeMillis());
-
             startActivity(intent);
             finish();
         });
+    }
+
+    private void showError(String message) {
+        resultText.setText(message);
+        resultText.setVisibility(View.VISIBLE);
+    }
+
+    private void logSession(float age, float height, float weight, float goalWeight, String gender, String goalType, long dailyCalorie) {
+        SessionTracker.actions.add("Saved at " + System.currentTimeMillis());
+        SessionTracker.actions.add("Gender: " + gender);
+        SessionTracker.actions.add("Age: " + age);
+        SessionTracker.actions.add("Height: " + height);
+        SessionTracker.actions.add("Weight: " + weight);
+        SessionTracker.actions.add("Goal Weight: " + goalWeight);
+        SessionTracker.actions.add("Goal Type: " + goalType);
+        SessionTracker.actions.add("Recommended Intake: " + dailyCalorie + " kcal");
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        Map<String, Object> sessionData = new HashMap<>();
+        sessionData.put("actions", new ArrayList<>(SessionTracker.actions));
+        sessionData.put("timestamp", System.currentTimeMillis());
+
+        db.collection("userSessions")
+                .add(sessionData)
+                .addOnSuccessListener(doc -> Log.d("Firestore", "Session saved with ID: " + doc.getId()))
+                .addOnFailureListener(e -> Log.w("Firestore", "Error saving session", e));
     }
 }

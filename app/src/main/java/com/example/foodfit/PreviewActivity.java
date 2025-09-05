@@ -28,6 +28,9 @@ public class PreviewActivity extends AppCompatActivity {
     private Bitmap finalBitmap = null;
     private Uri originalUri = null;
 
+    // ✅ MealType
+    private String mealType = "Breakfast"; // default
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,7 +41,13 @@ public class PreviewActivity extends AppCompatActivity {
         btnDone = findViewById(R.id.btnDone);
         btnCancel = findViewById(R.id.btnCancel);
 
+        // ✅ MealType receive from previous activity
         Intent intent = getIntent();
+        mealType = intent.getStringExtra("mealType");
+        if (mealType == null || mealType.trim().isEmpty()) {
+            mealType = "Breakfast"; // fallback
+        }
+
         boolean fromCamera = intent.getBooleanExtra("fromCamera", false);
 
         if (fromCamera) {
@@ -83,8 +92,11 @@ public class PreviewActivity extends AppCompatActivity {
         btnDone.setOnClickListener(v -> {
             if (finalBitmap != null) {
                 String base64Image = convertBitmapToBase64(finalBitmap);
+
+                // ✅ MealType forward to LoadingActivity2
                 Intent loadingIntent = new Intent(PreviewActivity.this, LoadingActivity2.class);
                 loadingIntent.putExtra("base64Image", base64Image);
+                loadingIntent.putExtra("mealType", mealType); // 🔥 Important
                 startActivity(loadingIntent);
             } else {
                 Toast.makeText(this, "⚠️ No image to process", Toast.LENGTH_SHORT).show();

@@ -14,18 +14,12 @@ import android.animation.ValueAnimator;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.Calendar;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
-
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.DocumentSnapshot;
 
 public class Postlogin extends AppCompatActivity {
 
@@ -50,9 +44,7 @@ public class Postlogin extends AppCompatActivity {
     private TextView tvBreakfastTarget, tvLunchTarget, tvDinnerTarget;
 
     // Firebase
-    private DatabaseReference dbRef;
     private String userId;
-
     private FirebaseFirestore firestore;
 
     @SuppressLint("MissingInflatedId")
@@ -68,12 +60,10 @@ public class Postlogin extends AppCompatActivity {
             return;
         }
 
-        dbRef = FirebaseDatabase.getInstance().getReference("users").child(userId).child("dailyProgress");
         firestore = FirebaseFirestore.getInstance();
-
         initViews();
 
-        // ✅ profile load karo
+        // Load profile and meal data
         loadUserProfileFromFirestore();
 
         calendarIcon.setOnClickListener(v -> openCalendar());
@@ -82,7 +72,6 @@ public class Postlogin extends AppCompatActivity {
             if (waterCount < waterTarget) {
                 waterCount++;
                 updateWaterUI();
-                saveMealProgressToFirebase();
             }
         });
 
@@ -93,13 +82,13 @@ public class Postlogin extends AppCompatActivity {
         });
 
         addLunchBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(Postlogin.this, FoodSearchActivity.class);
+            Intent intent = new Intent(Postlogin.this, Lunchmealactivity.class);
             intent.putExtra("mealType", "lunch");
             startActivity(intent);
         });
 
         addDinnerBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(Postlogin.this, FoodSearchActivity.class);
+            Intent intent = new Intent(Postlogin.this, DinnerMealActivity.class);
             intent.putExtra("mealType", "dinner");
             startActivity(intent);
         });
@@ -146,33 +135,38 @@ public class Postlogin extends AppCompatActivity {
     }
 
     private void updateCalorieUI() {
-        caloriesText.setText(eatenCalorie + " / " + dailyCalorie);
+        caloriesText.setText(eatenCalorie + " / " + dailyCalorie); // Eaten / Total
     }
 
     private void updateMealUI() {
-        // ✅ Breakfast realtime
-        tvBreakfastTarget.setText("Target: " + breakfastTarget + " cal");
-        breakfastCaloriesText.setText(breakfastConsumed + " / " + breakfastTarget + " kcal");
+        // Breakfast
+        updateSingleMealUI(tvBreakfastTarget, breakfastCaloriesText, breakfastConsumed, breakfastTarget);
 
-        if (breakfastConsumed == breakfastTarget) {
-            breakfastCaloriesText.setTextColor(Color.GREEN);
-            breakfastCaloriesText.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
-        } else if (breakfastConsumed > breakfastTarget + 50) {
-            breakfastCaloriesText.setTextColor(Color.RED);
-            breakfastCaloriesText.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.refs, 0);
+        // Lunch
+        updateSingleMealUI(tvLunchTarget, lunchCaloriesText, lunchConsumed, lunchTarget);
+
+        // Dinner
+        updateSingleMealUI(tvDinnerTarget, dinnerCaloriesText, dinnerConsumed, dinnerTarget);
+
+        // Update total calories
+        eatenCalorie = breakfastConsumed + lunchConsumed + dinnerConsumed;
+        updateCalorieUI();
+    }
+
+    private void updateSingleMealUI(TextView targetTv, TextView consumedTv, int consumed, int target) {
+        targetTv.setText("Target: " + target + " cal");
+        consumedTv.setText(consumed + " / " + target + " kcal");
+
+        if (consumed == target) {
+            consumedTv.setTextColor(Color.GREEN);
+            consumedTv.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+        } else if (consumed > target + 50) {
+            consumedTv.setTextColor(Color.RED);
+            consumedTv.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.refs, 0);
         } else {
-            breakfastCaloriesText.setTextColor(Color.WHITE);
-            breakfastCaloriesText.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+            consumedTv.setTextColor(Color.WHITE);
+            consumedTv.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
         }
-
-        // Lunch & Dinner
-        tvLunchTarget.setText("Target: " + lunchTarget + " cal");
-        lunchCaloriesText.setText(lunchConsumed + " / " + lunchTarget + " kcal");
-
-        tvDinnerTarget.setText("Target: " + dinnerTarget + " cal");
-        dinnerCaloriesText.setText(dinnerConsumed + " / " + dinnerTarget + " kcal");
-
-        caloriesText.setText(eatenCalorie + " / " + dailyCalorie);
     }
 
     private void loadUserProfileFromFirestore() {
@@ -180,123 +174,61 @@ public class Postlogin extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(snapshot -> {
                     if (snapshot.exists()) {
-                        // dailyCalorie
                         Long cal = snapshot.getLong("dailyCalorie");
-                        if (cal != null) {
-                            dailyCalorie = cal.intValue();
-                        }
+                        if (cal != null) dailyCalorie = cal.intValue();
 
-                        // weight
                         String weightStr = snapshot.getString("weight");
                         int weightKg = 70; // default
                         if (weightStr != null && !weightStr.isEmpty()) {
-                            try {
-                                weightKg = Integer.parseInt(weightStr);
-                            } catch (NumberFormatException e) {
-                                e.printStackTrace();
-                            }
+                            try { weightKg = Integer.parseInt(weightStr); } catch (NumberFormatException e) { e.printStackTrace(); }
                         }
 
                         calculateWaterTarget(weightKg);
                         allocateMealCalories();
-                        updateCalorieUI();
                         updateWaterUI();
 
-                        // ✅ Meals load karo
-                        loadMealProgressFromFirebase();
+                        // Load meal progress realtime
+                        loadMealProgressFromFirestore();
 
                         Toast.makeText(this, "✅ Profile loaded", Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(this, "⚠️ Profile not found in Firestore", Toast.LENGTH_SHORT).show();
                     }
                 })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "❌ Failed to load profile: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
+                .addOnFailureListener(e -> Toast.makeText(this, "❌ Failed to load profile: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
-    private void saveMealProgressToFirebase() {
-        String today = getTodayDate();
+    private void loadMealProgressFromFirestore() {
+        String[] meals = {"Breakfast", "Lunch", "Dinner"};
+        for (String mealType : meals) {
+            firestore.collection("users").document(userId).collection("meals")
+                    .whereEqualTo("mealType", mealType)
+                    .addSnapshotListener((queryDocumentSnapshots, e) -> {
+                        if (e != null) {
+                            Toast.makeText(Postlogin.this, "❌ " + mealType + " listen failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            return;
+                        }
 
-        DatabaseReference ref = dbRef.child(today);
-
-        ref.child("breakfastConsumed").setValue(breakfastConsumed);
-        ref.child("breakfastTarget").setValue(breakfastTarget);
-
-        ref.child("lunchConsumed").setValue(lunchConsumed);
-        ref.child("lunchTarget").setValue(lunchTarget);
-
-        ref.child("dinnerConsumed").setValue(dinnerConsumed);
-        ref.child("dinnerTarget").setValue(dinnerTarget);
-
-        ref.child("waterCount").setValue(waterCount);
-        ref.child("waterTarget").setValue(waterTarget);
-        ref.child("eatenCalorie").setValue(eatenCalorie);
-        ref.child("dailyCalorie").setValue(dailyCalorie);
-    }
-
-    private void loadMealProgressFromFirebase() {
-        String today = getTodayDate();
-
-        // ✅ Breakfast Firestore realtime listen
-        firestore.collection("users")
-                .document(userId)
-                .collection("meals")
-                .whereEqualTo("mealType", "Breakfast")
-                .addSnapshotListener((queryDocumentSnapshots, e) -> {
-                    if (e != null) {
-                        Toast.makeText(Postlogin.this, "❌ Breakfast listen failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    int totalBreakfast = 0;
-                    if (queryDocumentSnapshots != null) {
-                        for (DocumentSnapshot doc : queryDocumentSnapshots) {
-                            String calStr = doc.getString("calories");
-                            if (calStr != null && !calStr.isEmpty()) {
-                                try {
-                                    totalBreakfast += (int) Double.parseDouble(calStr);
-                                } catch (NumberFormatException ex) {
-                                    ex.printStackTrace();
+                        int totalCalories = 0;
+                        if (queryDocumentSnapshots != null) {
+                            for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                                String calStr = doc.getString("calories");
+                                if (calStr != null && !calStr.isEmpty()) {
+                                    try { totalCalories += (int) Double.parseDouble(calStr); } catch (NumberFormatException ex) { ex.printStackTrace(); }
                                 }
                             }
                         }
-                    }
-                    breakfastConsumed = totalBreakfast;
-                    updateMealUI();
-                });
 
-        // ✅ Lunch & Dinner realtime DB
-        DatabaseReference ref = dbRef.child(today);
-        ref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    lunchConsumed = snapshot.child("lunchConsumed").getValue(Integer.class) != null ?
-                            snapshot.child("lunchConsumed").getValue(Integer.class) : 0;
-                    dinnerConsumed = snapshot.child("dinnerConsumed").getValue(Integer.class) != null ?
-                            snapshot.child("dinnerConsumed").getValue(Integer.class) : 0;
-                    waterCount = snapshot.child("waterCount").getValue(Integer.class) != null ?
-                            snapshot.child("waterCount").getValue(Integer.class) : 0;
-                    eatenCalorie = snapshot.child("eatenCalorie").getValue(Integer.class) != null ?
-                            snapshot.child("eatenCalorie").getValue(Integer.class) : 0;
-                    waterTarget = snapshot.child("waterTarget").getValue(Integer.class) != null ?
-                            snapshot.child("waterTarget").getValue(Integer.class) : waterTarget;
+                        switch (mealType) {
+                            case "Breakfast": breakfastConsumed = totalCalories; break;
+                            case "Lunch": lunchConsumed = totalCalories; break;
+                            case "Dinner": dinnerConsumed = totalCalories; break;
+                        }
 
-                    updateMealUI();
-                    updateCalorieUI();
-                    updateWaterUI();
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-                Toast.makeText(Postlogin.this, "❌ Load failed: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private String getTodayDate() {
-        return new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().getTime());
+                        // Update UI including total calories
+                        updateMealUI();
+                    });
+        }
     }
 
     private void updateWaterUI() {
@@ -326,22 +258,18 @@ public class Postlogin extends AppCompatActivity {
             if (isHome) {
                 homeParams.weight = 7;
                 profileParams.weight = 3;
-
                 homeText.setTextColor(Color.WHITE);
                 homeIcon.setColorFilter(Color.WHITE);
                 profileText.setTextColor(Color.parseColor("#80FFFFFF"));
                 profileIcon.setColorFilter(Color.parseColor("#80FFFFFF"));
-
             } else {
                 homeParams.weight = 3;
                 profileParams.weight = 7;
-
                 profileText.setTextColor(Color.WHITE);
                 profileIcon.setColorFilter(Color.WHITE);
                 homeText.setTextColor(Color.parseColor("#80FFFFFF"));
                 homeIcon.setColorFilter(Color.parseColor("#80FFFFFF"));
             }
-
             homeSection.setLayoutParams(homeParams);
             profileSection.setLayoutParams(profileParams);
         });

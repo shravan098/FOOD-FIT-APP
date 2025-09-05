@@ -26,7 +26,8 @@ public class GeminiFinalResultActivity extends AppCompatActivity {
 
     private double baseCalories, baseProtein, baseFat, baseCarbs;
     private String foodName;
-    private String docId; // null = new meal, not null = edit existing meal
+    private String docId;
+    private String mealType;  // ✅ Breakfast / Lunch / Dinner
 
     FirebaseFirestore db;
     String userId;
@@ -57,6 +58,12 @@ public class GeminiFinalResultActivity extends AppCompatActivity {
         // Get data from Intent
         docId = getIntent().getStringExtra("docId");
         foodName = getIntent().getStringExtra("foodName");
+        mealType = getIntent().getStringExtra("mealType"); // ✅ ensure passed
+
+        if (mealType == null || mealType.trim().isEmpty()) {
+            Toast.makeText(this, "⚠️ Meal type not received, defaulting to Breakfast", Toast.LENGTH_SHORT).show();
+            mealType = "Breakfast"; // fallback
+        }
 
         double grams = getIntent().getDoubleExtra("grams", 100);
 
@@ -65,7 +72,7 @@ public class GeminiFinalResultActivity extends AppCompatActivity {
         double fatVal = parseDouble(getIntent().getStringExtra("fat"));
         double carbsVal = parseDouble(getIntent().getStringExtra("carbs"));
 
-        // Always normalize to per 100g base
+        // Normalize to per 100g
         if (grams > 0) {
             baseCalories = (caloriesVal / grams) * 100.0;
             baseProtein = (proteinVal / grams) * 100.0;
@@ -115,7 +122,6 @@ public class GeminiFinalResultActivity extends AppCompatActivity {
         addToMealBtn.setOnClickListener(v -> saveMealToFirestore());
     }
 
-    // Helper to parse numbers safely
     private double parseDouble(String value) {
         try {
             return Double.parseDouble(value.replaceAll("[^0-9.]", ""));
@@ -124,17 +130,14 @@ public class GeminiFinalResultActivity extends AppCompatActivity {
         }
     }
 
-    // Update nutrition values when weight changes
     private void updateNutritionViews(double grams) {
         double factor = grams / 100.0;
-
         caloriesText.setText("Calories: " + String.format("%.2f", baseCalories * factor) + " kcal");
         proteinText.setText("Protein: " + String.format("%.2f", baseProtein * factor) + " g");
         fatText.setText("Fat: " + String.format("%.2f", baseFat * factor) + " g");
         carbsText.setText("Carbs: " + String.format("%.2f", baseCarbs * factor) + " g");
     }
 
-    // Save / Update meal in Firestore
     private void saveMealToFirestore() {
         String gramsStr = weightInput.getText().toString().trim();
         double grams = gramsStr.isEmpty() ? 100 : Double.parseDouble(gramsStr);
@@ -147,33 +150,41 @@ public class GeminiFinalResultActivity extends AppCompatActivity {
         mealData.put("fat", String.format("%.2f", baseFat * factor));
         mealData.put("carbs", String.format("%.2f", baseCarbs * factor));
         mealData.put("grams", grams);
-        mealData.put("mealType", "Breakfast");
+        mealData.put("mealType", mealType);  // ✅ correct type save
 
         if (docId != null) {
-            // Update existing meal
             db.collection("users").document(userId)
                     .collection("meals").document(docId)
                     .update(mealData)
                     .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(this, "✅ Meal updated", Toast.LENGTH_SHORT).show();
-                        goBackToBreakfast();
+                        Toast.makeText(this, "✅ Meal updated in " + mealType, Toast.LENGTH_SHORT).show();
+                        goBackToMeal();
                     })
                     .addOnFailureListener(e -> Toast.makeText(this, "❌ Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
         } else {
-            // Add new meal
             db.collection("users").document(userId)
                     .collection("meals").add(mealData)
                     .addOnSuccessListener(doc -> {
-                        Toast.makeText(this, "✅ Added to Breakfast meal", Toast.LENGTH_SHORT).show();
-                        goBackToBreakfast();
+                        Toast.makeText(this, "✅ Added to " + mealType, Toast.LENGTH_SHORT).show();
+                        goBackToMeal();
                     })
                     .addOnFailureListener(e -> Toast.makeText(this, "❌ Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
         }
     }
 
-    // Back to BreakfastMealActivity
-    private void goBackToBreakfast() {
-        Intent intent = new Intent(GeminiFinalResultActivity.this, BreakfastMealActivity.class);
+    private void goBackToMeal() {
+        Intent intent;
+        switch (mealType) {
+            case "Lunch":
+                intent = new Intent(GeminiFinalResultActivity.this, Lunchmealactivity.class);
+                break;
+            case "Dinner":
+                intent = new Intent(GeminiFinalResultActivity.this, DinnerMealActivity.class);
+                break;
+            default:
+                intent = new Intent(GeminiFinalResultActivity.this, BreakfastMealActivity.class);
+                break;
+        }
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         finish();

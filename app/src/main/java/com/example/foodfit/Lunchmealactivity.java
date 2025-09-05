@@ -26,15 +26,17 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BreakfastMealActivity extends AppCompatActivity {
+public class Lunchmealactivity extends AppCompatActivity {
 
     private Button btnSearchFood, btnScanFood;
     private RecyclerView recyclerMeals;
 
+    // 📷 Camera & Gallery
     private static final int REQUEST_CAMERA = 101;
     private ActivityResultLauncher<String> cameraPermissionLauncher;
     private ActivityResultLauncher<PickVisualMediaRequest> galleryPickerLauncher;
 
+    // 🔥 Firestore
     private FirebaseFirestore db;
     private String userId;
     private MealAdapter adapter;
@@ -43,7 +45,7 @@ public class BreakfastMealActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.breakfastmealactitvity);
+        setContentView(R.layout.lunchmealactivity);
 
         btnSearchFood = findViewById(R.id.btnSearchFood);
         btnScanFood = findViewById(R.id.btnScanFood);
@@ -57,7 +59,8 @@ public class BreakfastMealActivity extends AppCompatActivity {
         adapter = new MealAdapter(this, mealList, new MealAdapter.OnMealActionListener() {
             @Override
             public void onEdit(DocumentSnapshot doc) {
-                Intent intent = new Intent(BreakfastMealActivity.this, GeminiFinalResultActivity.class);
+                // 👉 send to GeminiFinalResultActivity for editing
+                Intent intent = new Intent(Lunchmealactivity.this, GeminiFinalResultActivity.class);
                 intent.putExtra("docId", doc.getId());
                 intent.putExtra("foodName", doc.getString("foodName"));
                 intent.putExtra("calories", doc.getString("calories"));
@@ -65,7 +68,7 @@ public class BreakfastMealActivity extends AppCompatActivity {
                 intent.putExtra("fat", doc.getString("fat"));
                 intent.putExtra("carbs", doc.getString("carbs"));
                 intent.putExtra("grams", doc.getDouble("grams"));
-                intent.putExtra("mealType", "Breakfast"); // ✅ fix added
+                intent.putExtra("mealType", "Lunch"); // ✅ Important
                 startActivity(intent);
             }
 
@@ -73,7 +76,7 @@ public class BreakfastMealActivity extends AppCompatActivity {
             public void onDelete(DocumentSnapshot doc) {
                 doc.getReference().delete()
                         .addOnSuccessListener(aVoid -> {
-                            Toast.makeText(BreakfastMealActivity.this, "🗑 Deleted", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(Lunchmealactivity.this, "🗑 Deleted", Toast.LENGTH_SHORT).show();
                             loadMeals();
                         });
             }
@@ -82,8 +85,8 @@ public class BreakfastMealActivity extends AppCompatActivity {
         recyclerMeals.setAdapter(adapter);
 
         btnSearchFood.setOnClickListener(v -> {
-            Intent intent = new Intent(BreakfastMealActivity.this, FoodSearchActivity.class);
-            intent.putExtra("mealType", "Breakfast"); // ✅ fix added
+            Intent intent = new Intent(Lunchmealactivity.this, FoodSearchActivity.class);
+            intent.putExtra("mealType", "Lunch"); // ✅ Pass meal type
             startActivity(intent);
         });
 
@@ -97,13 +100,14 @@ public class BreakfastMealActivity extends AppCompatActivity {
         db.collection("users")
                 .document(userId)
                 .collection("meals")
-                .whereEqualTo("mealType", "Breakfast")
+                .whereEqualTo("mealType", "Lunch") // ✅ Filter for Lunch
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     mealList.clear();
                     mealList.addAll(queryDocumentSnapshots.getDocuments());
                     adapter.notifyDataSetChanged();
 
+                    // ✅ Calculate total lunch calories
                     int totalCalories = 0;
                     for (DocumentSnapshot doc : mealList) {
                         String calStr = doc.getString("calories");
@@ -116,9 +120,10 @@ public class BreakfastMealActivity extends AppCompatActivity {
                         }
                     }
 
+                    // Save in SharedPreferences
                     getSharedPreferences("FoodFitPrefs", MODE_PRIVATE)
                             .edit()
-                            .putInt("breakfastConsumed", totalCalories)
+                            .putInt("lunchConsumed", totalCalories)
                             .apply();
                 });
     }
@@ -136,10 +141,10 @@ public class BreakfastMealActivity extends AppCompatActivity {
                 new ActivityResultContracts.PickVisualMedia(),
                 uri -> {
                     if (uri != null) {
-                        Intent intent = new Intent(BreakfastMealActivity.this, PreviewActivity.class);
+                        Intent intent = new Intent(Lunchmealactivity.this, PreviewActivity.class);
                         intent.putExtra("fromCamera", false);
                         intent.putExtra("imageUri", uri.toString());
-                        intent.putExtra("mealType", "Breakfast"); // ✅ fix added
+                        intent.putExtra("mealType", "Lunch"); // ✅ Pass meal type
                         startActivity(intent);
                     } else {
                         Toast.makeText(this, "⚠️ No image selected", Toast.LENGTH_SHORT).show();
@@ -184,10 +189,10 @@ public class BreakfastMealActivity extends AppCompatActivity {
 
         if (resultCode == RESULT_OK && data != null && requestCode == REQUEST_CAMERA) {
             Bitmap photo = (Bitmap) data.getExtras().get("data");
-            Intent intent = new Intent(BreakfastMealActivity.this, PreviewActivity.class);
+            Intent intent = new Intent(Lunchmealactivity.this, PreviewActivity.class);
             intent.putExtra("fromCamera", true);
             intent.putExtra("cameraBitmap", photo);
-            intent.putExtra("mealType", "Breakfast"); // ✅ fix added
+            intent.putExtra("mealType", "Lunch"); // ✅ Pass meal type
             startActivity(intent);
         }
     }
