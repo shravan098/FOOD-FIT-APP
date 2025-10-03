@@ -19,11 +19,13 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Weight Input -->
     <EditText
         android:id="@+id/weightInput"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Enter amount"
+        android:hint="Enter amount (grams)"
         android:inputType="number"
         android:text="100"
         android:padding="12dp"
@@ -33,9 +35,6 @@
         app:layout_constraintEnd_toStartOf="@id/recalcButton"
         android:layout_marginTop="12dp"/>
 
-    <!-- Weight Input -->
-
-
     <!-- Recalculate Button -->
     <Button
         android:id="@+id/recalcButton"
@@ -43,42 +42,40 @@
         android:layout_height="wrap_content"
         android:text="Recalculate"
         app:layout_constraintTop_toTopOf="@id/weightInput"
+        app:layout_constraintBottom_toBottomOf="@id/weightInput"
         app:layout_constraintStart_toEndOf="@id/weightInput"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Nutrient Results -->
-    <TextView
-        android:id="@+id/resultView"
+    <!-- Scrollable Nutrient Results -->
+    <ScrollView
+        android:id="@+id/resultScroll"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Nutrient Info"
-        android:textSize="16sp"
-        android:textColor="#000000"
-        android:padding="12dp"
-        android:scrollbars="vertical"
+        android:layout_height="0dp"
+        android:layout_marginTop="12dp"
         app:layout_constraintTop_toBottomOf="@id/weightInput"
+        app:layout_constraintBottom_toTopOf="@id/addMealButton"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/resultView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:text="Nutrient Info"
+            android:textColor="#000000"
+            android:textSize="16sp"/>
+    </ScrollView>
 
     <!-- Add to Meal Button -->
     <Button
         android:id="@+id/addMealButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
         android:text="Add to Meal"
-        app:layout_constraintTop_toBottomOf="@id/resultView"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="12dp"/>
-
-    <!-- RecyclerView for Meal List -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/mealRecycler"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:paddingTop="12dp"
-        app:layout_constraintTop_toBottomOf="@id/addMealButton"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -21,7 +21,6 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MealViewHolder
     private OnMealActionListener listener;
 
     public interface OnMealActionListener {
-        void onEdit(DocumentSnapshot doc);
         void onDelete(DocumentSnapshot doc);
     }
 
@@ -41,13 +40,25 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MealViewHolder
     @Override
     public void onBindViewHolder(@NonNull MealViewHolder holder, int position) {
         DocumentSnapshot doc = mealList.get(position);
+
         String foodName = doc.getString("foodName");
-        String calories = doc.getString("calories");
+
+        // Safely read numbers and convert to String
+        Object calObj = doc.get("calories");
+        String calories = (calObj != null) ? calObj.toString() : "0";
+
+        Object proteinObj = doc.get("protein");
+        String protein = (proteinObj != null) ? proteinObj.toString() : "0";
+
+        Object carbsObj = doc.get("carbs");
+        String carbs = (carbsObj != null) ? carbsObj.toString() : "0";
+
+        Object fatObj = doc.get("fat");
+        String fat = (fatObj != null) ? fatObj.toString() : "0";
 
         holder.tvFoodName.setText("🍽 " + foodName);
-        holder.tvCalories.setText("Calories: " + calories + " kcal");
+        holder.tvCalories.setText("Calories: " + calories + " kcal\n💪 Protein: " + protein + " g\n🍞 Carbs: " + carbs + " g\n🥑 Fat: " + fat + " g");
 
-        holder.btnEdit.setOnClickListener(v -> listener.onEdit(doc));
         holder.btnDelete.setOnClickListener(v -> listener.onDelete(doc));
     }
 
@@ -58,13 +69,13 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MealViewHolder
 
     public static class MealViewHolder extends RecyclerView.ViewHolder {
         TextView tvFoodName, tvCalories;
-        Button btnEdit, btnDelete;
+        Button btnDelete;
 
         public MealViewHolder(@NonNull View itemView) {
             super(itemView);
             tvFoodName = itemView.findViewById(R.id.tvFoodName);
             tvCalories = itemView.findViewById(R.id.tvCalories);
-            btnEdit = itemView.findViewById(R.id.btnEdit);
+
             btnDelete = itemView.findViewById(R.id.btnDelete);
         }
     }

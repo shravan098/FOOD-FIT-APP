@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFB247"
+    android:background="#000000"
 
     android:padding="24dp">
 
@@ -20,7 +20,7 @@
         android:layout_height="163dp"
         android:gravity="center"
         android:text="We are Creating a perfect plan for you"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         android:textSize="40sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -47,7 +47,7 @@
         android:layout_marginTop="44dp"
         android:gravity="center"
         android:text="This will take a few seconds, please don't close the app"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         android:textSize="35sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"

@@ -42,17 +42,26 @@ public class Postlogin extends AppCompatActivity {
         setContentView(R.layout.activity_postlogin);
 
         userId = FirebaseAuth.getInstance().getUid();
-        if (userId == null) { Toast.makeText(this, "User not logged in!", Toast.LENGTH_SHORT).show(); finish(); return; }
+        if (userId == null) {
+            Toast.makeText(this, "User not logged in!", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
         firestore = FirebaseFirestore.getInstance();
         initViews();
         loadUserProfileFromFirestore();
 
         calendarIcon.setOnClickListener(v -> openCalendar());
-        addWaterBtn.setOnClickListener(v -> { if (waterCount < waterTarget) { waterCount++; updateWaterUI(); } });
+        addWaterBtn.setOnClickListener(v -> {
+            if (waterCount < waterTarget) {
+                waterCount++;
+                updateWaterUI();
+            }
+        });
 
         addBreakfastBtn.setOnClickListener(v -> startMealActivity("breakfast", BreakfastMealActivity.class));
-        addLunchBtn.setOnClickListener(v -> startMealActivity("lunch", Lunchmealactivity.class));
+        addLunchBtn.setOnClickListener(v -> startMealActivity("lunch", LunchMealActivity.class));
         addDinnerBtn.setOnClickListener(v -> startMealActivity("dinner", DinnerMealActivity.class));
 
         homeSection.setOnClickListener(v -> switchTab(true));
@@ -62,7 +71,7 @@ public class Postlogin extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Highlight home tab
+        // Highlight home tab by default
         homeText.setTextColor(Color.WHITE);
         homeIcon.setColorFilter(Color.WHITE);
         profileText.setTextColor(Color.parseColor("#80FFFFFF"));
@@ -105,16 +114,20 @@ public class Postlogin extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void calculateWaterTarget(int weightKg) { waterTarget = (int) Math.round(weightKg * 35 / 250.0); }
+    private void calculateWaterTarget(int weightKg) {
+        waterTarget = (int) Math.round(weightKg * 35 / 250.0);
+    }
 
     private void allocateMealCalories() {
-        breakfastTarget = (int)(dailyCalorie*0.3);
-        lunchTarget = (int)(dailyCalorie*0.4);
-        dinnerTarget = dailyCalorie-(breakfastTarget+ lunchTarget);
+        breakfastTarget = (int) (dailyCalorie * 0.3);
+        lunchTarget = (int) (dailyCalorie * 0.4);
+        dinnerTarget = dailyCalorie - (breakfastTarget + lunchTarget);
         updateMealUI();
     }
 
-    private void updateCalorieUI() { caloriesText.setText(eatenCalorie + " / " + dailyCalorie); }
+    private void updateCalorieUI() {
+        caloriesText.setText(eatenCalorie + " / " + dailyCalorie);
+    }
 
     private void updateMealUI() {
         updateSingleMealUI(tvBreakfastTarget, breakfastCaloriesText, breakfastConsumed, breakfastTarget);
@@ -136,13 +149,27 @@ public class Postlogin extends AppCompatActivity {
         firestore.collection("users").document(userId)
                 .get()
                 .addOnSuccessListener(snapshot -> {
-                    if(snapshot.exists()) {
-                        Long cal = snapshot.getLong("dailyCalorie");
-                        if(cal != null) dailyCalorie = cal.intValue();
+                    if (snapshot.exists()) {
+                        // Read dailyCalorie safely
+                        Object calObj = snapshot.get("dailyCalorie");
+                        if (calObj != null) {
+                            if (calObj instanceof Number) dailyCalorie = ((Number) calObj).intValue();
+                            else {
+                                try { dailyCalorie = (int) Double.parseDouble(calObj.toString()); }
+                                catch (Exception ignored) {}
+                            }
+                        }
 
-                        int weight = 70;
-                        String weightStr = snapshot.getString("weight");
-                        if(weightStr != null && !weightStr.isEmpty()) try { weight = Integer.parseInt(weightStr); } catch(Exception e){}
+                        // Read weight safely
+                        int weight = 70; // default
+                        Object weightObj = snapshot.get("weight");
+                        if (weightObj != null) {
+                            if (weightObj instanceof Number) weight = ((Number) weightObj).intValue();
+                            else {
+                                try { weight = (int) Double.parseDouble(weightObj.toString()); }
+                                catch (Exception ignored) {}
+                            }
+                        }
 
                         calculateWaterTarget(weight);
                         allocateMealCalories();
@@ -153,53 +180,69 @@ public class Postlogin extends AppCompatActivity {
     }
 
     private void loadMealProgressFromFirestore() {
-        String[] meals = {"Breakfast","Lunch","Dinner"};
-        for(String mealType: meals){
+        String[] meals = {"Breakfast", "Lunch", "Dinner"};
+        for (String mealType : meals) {
             firestore.collection("users").document(userId).collection("meals")
                     .whereEqualTo("mealType", mealType)
                     .addSnapshotListener((snapshots, e) -> {
-                        if(e != null) return;
+                        if (e != null) return;
                         int total = 0;
-                        if(snapshots != null){
-                            for(DocumentSnapshot doc: snapshots){
-                                String calStr = doc.getString("calories");
-                                if(calStr != null && !calStr.isEmpty()) total += (int)Double.parseDouble(calStr);
+                        if (snapshots != null) {
+                            for (DocumentSnapshot doc : snapshots) {
+                                Object calObj = doc.get("calories");
+                                if (calObj != null) {
+                                    try {
+                                        total += ((Number) calObj).intValue();
+                                    } catch (ClassCastException ex) {
+                                        try {
+                                            total += Integer.parseInt(calObj.toString());
+                                        } catch (NumberFormatException ignored) {}
+                                    }
+                                }
                             }
                         }
-                        switch(mealType){
-                            case "Breakfast": breakfastConsumed = total; break;
-                            case "Lunch": lunchConsumed = total; break;
-                            case "Dinner": dinnerConsumed = total; break;
+                        switch (mealType) {
+                            case "Breakfast":
+                                breakfastConsumed = total;
+                                break;
+                            case "Lunch":
+                                lunchConsumed = total;
+                                break;
+                            case "Dinner":
+                                dinnerConsumed = total;
+                                break;
                         }
                         updateMealUI();
                     });
         }
     }
 
-    private void updateWaterUI() { waterCountText.setText(waterCount + "/" + waterTarget); }
+    private void updateWaterUI() {
+        waterCountText.setText(waterCount + "/" + waterTarget);
+    }
 
     private void openCalendar() {
         Calendar c = Calendar.getInstance();
         new DatePickerDialog(this,
-                (view, year, month, day) -> calendarIcon.setContentDescription("Selected: "+day+"/"+(month+1)+"/"+year),
+                (view, year, month, day) -> calendarIcon.setContentDescription("Selected: " + day + "/" + (month + 1) + "/" + year),
                 c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
     }
 
-    private void switchTab(boolean isHome){
+    private void switchTab(boolean isHome) {
         LinearLayout.LayoutParams homeParams = (LinearLayout.LayoutParams) homeSection.getLayoutParams();
         LinearLayout.LayoutParams profileParams = (LinearLayout.LayoutParams) profileSection.getLayoutParams();
 
-        ValueAnimator animator = ValueAnimator.ofFloat(0f,1f);
+        ValueAnimator animator = ValueAnimator.ofFloat(0f, 1f);
         animator.setDuration(400);
         animator.setInterpolator(new android.view.animation.OvershootInterpolator());
         animator.addUpdateListener(animation -> {
             float fraction = (float) animation.getAnimatedValue();
-            if(isHome){
-                homeParams.weight = 3 + 4*fraction;
-                profileParams.weight = 7 - 4*fraction;
-            } else{
-                homeParams.weight = 7 - 4*fraction;
-                profileParams.weight = 3 + 4*fraction;
+            if (isHome) {
+                homeParams.weight = 3 + 4 * fraction;
+                profileParams.weight = 7 - 4 * fraction;
+            } else {
+                homeParams.weight = 7 - 4 * fraction;
+                profileParams.weight = 3 + 4 * fraction;
             }
             homeSection.setLayoutParams(homeParams);
             profileSection.setLayoutParams(profileParams);
@@ -215,13 +258,13 @@ public class Postlogin extends AppCompatActivity {
         });
         animator.start();
 
-        if(!isHome) startActivity(new Intent(Postlogin.this, ProfileActivity.class));
+        if (!isHome) startActivity(new Intent(Postlogin.this, ProfileActivity.class));
     }
 
-    private int blendColors(int from,int to,float fraction){
-        int r = (int)((Color.red(to)-Color.red(from))*fraction + Color.red(from));
-        int g = (int)((Color.green(to)-Color.green(from))*fraction + Color.green(from));
-        int b = (int)((Color.blue(to)-Color.blue(from))*fraction + Color.blue(from));
-        return Color.rgb(r,g,b);
+    private int blendColors(int from, int to, float fraction) {
+        int r = (int) ((Color.red(to) - Color.red(from)) * fraction + Color.red(from));
+        int g = (int) ((Color.green(to) - Color.green(from)) * fraction + Color.green(from));
+        int b = (int) ((Color.blue(to) - Color.blue(from)) * fraction + Color.blue(from));
+        return Color.rgb(r, g, b);
     }
 }

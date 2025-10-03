@@ -25,7 +25,7 @@
         android:src="@drawable/image1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.468"
+        app:layout_constraintHorizontal_bias="0.46"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
@@ -64,14 +64,14 @@
         android:id="@+id/loseWeightButton"
         android:layout_width="346dp"
         android:layout_height="93dp"
-        android:layout_marginTop="256dp"
+        android:layout_marginTop="224dp"
+        android:backgroundTint="@color/white"
+        android:fontFamily="@font/ubuntu_bold"
         android:text="@string/lose_weight"
         android:textColor="#000000"
-        android:fontFamily="@font/ubuntu_bold"
         android:textSize="30sp"
-        android:backgroundTint="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.585"
+        app:layout_constraintHorizontal_bias="0.492"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="VisualLintButtonSize" />
@@ -87,9 +87,10 @@
         android:textSize="30sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.584"
+        app:layout_constraintHorizontal_bias="0.492"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.517"
         tools:ignore="VisualLintButtonSize,TextSizeCheck" />
 
     <Button
@@ -107,7 +108,7 @@
         app:layout_constraintHorizontal_bias="0.492"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.656"
+        app:layout_constraintVertical_bias="0.67"
         tools:ignore="VisualLintButtonSize" />
 
     <TextView

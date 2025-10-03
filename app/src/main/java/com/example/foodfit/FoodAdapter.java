@@ -11,37 +11,39 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class USDAFoodAdapter extends RecyclerView.Adapter<USDAFoodAdapter.FoodViewHolder> {
+public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder> {
 
-    private final List<USDAFoodItem> foodList = new ArrayList<>();
-    private final OnFoodClickListener clickListener;
+    private List<FoodItem> foodList = new ArrayList<>();
+    private final OnItemClickListener listener;
 
-    public interface OnFoodClickListener {
-        void onFoodClick(USDAFoodItem item);
+    public interface OnItemClickListener {
+        void onItemClick(FoodItem item);
     }
 
-    public USDAFoodAdapter(OnFoodClickListener listener) {
-        this.clickListener = listener;
+    public FoodAdapter(OnItemClickListener listener) {
+        this.listener = listener;
     }
 
-    public void setData(List<USDAFoodItem> items) {
+    public void setData(List<FoodItem> data) {
         foodList.clear();
-        foodList.addAll(items);
+        foodList.addAll(data);
         notifyDataSetChanged();
     }
 
     @NonNull
     @Override
     public FoodViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_food, parent, false);
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_food, parent, false);
         return new FoodViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull FoodViewHolder holder, int position) {
-        USDAFoodItem item = foodList.get(position);
+        FoodItem item = foodList.get(position);
         holder.foodName.setText(item.getDescription());
-        holder.itemView.setOnClickListener(v -> clickListener.onFoodClick(item));
+
+        holder.itemView.setOnClickListener(v -> listener.onItemClick(item));
     }
 
     @Override
@@ -49,7 +51,7 @@ public class USDAFoodAdapter extends RecyclerView.Adapter<USDAFoodAdapter.FoodVi
         return foodList.size();
     }
 
-    public static class FoodViewHolder extends RecyclerView.ViewHolder {
+    static class FoodViewHolder extends RecyclerView.ViewHolder {
         TextView foodName;
 
         public FoodViewHolder(@NonNull View itemView) {

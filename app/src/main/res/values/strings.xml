@@ -107,4 +107,9 @@
     <string name="toggle_confirm_password">h</string>
     <string name="toggle_password">k</string>
     <string name="selected_image">Selected Image</string>
+    <string name="toggle_confirm_password_visibility">Toggle confirm password visibility</string>
+    <string name="analyzing_your_meal">Analyzing your meal...</string>
+
 </resources>
+
+

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -14,24 +15,20 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class    FoodSearchActivity extends AppCompatActivity {
+public class FoodSearchActivity extends AppCompatActivity {
 
     private EditText searchInput;
     private RecyclerView foodRecycler;
+    private TextView placeholderMessage;
     private static final String API_KEY = "FiKfVXO2OQUTg8YrXgzIo9URqOJ4d20neLaG7Xds";
     private static final String TAG = "FoodSearch";
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        SessionTracker.actions.add("Entered FoodSearchActivity at " + System.currentTimeMillis());
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,24 +37,22 @@ public class    FoodSearchActivity extends AppCompatActivity {
 
         searchInput = findViewById(R.id.searchInput);
         foodRecycler = findViewById(R.id.foodRecycler);
-        TextView placeholderMessage = findViewById(R.id.placeholderMessage);
+        placeholderMessage = findViewById(R.id.placeholderMessage);
 
         foodRecycler.setLayoutManager(new LinearLayoutManager(this));
-        USDAFoodAdapter adapter = new USDAFoodAdapter(this::launchNutrientScreen);
+        foodRecycler.setDescendantFocusability(RecyclerView.FOCUS_BLOCK_DESCENDANTS);
+
+        FoodAdapter adapter = new FoodAdapter(this::launchNutrientScreen);
         foodRecycler.setAdapter(adapter);
 
-        searchInput.setText("");
-
         searchInput.setOnEditorActionListener((v, actionId, event) -> {
-            Log.d(TAG, "EditorAction triggered with id: " + actionId);
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 String query = searchInput.getText().toString().trim();
-                Log.d(TAG, "User searched for: " + query);
                 if (!query.isEmpty()) {
-                    SessionTracker.actions.add("Searched for \"" + query + "\" at " + System.currentTimeMillis());
-                    adapter.setData(List.of());
+                    adapter.setData(new ArrayList<>());
                     placeholderMessage.setText("Searching for \"" + query + "\"...");
-                    searchFood(query, adapter, placeholderMessage);
+                    hideKeyboard();
+                    searchFood(query, adapter);
                 }
                 return true;
             }
@@ -65,43 +60,52 @@ public class    FoodSearchActivity extends AppCompatActivity {
         });
     }
 
-    private void searchFood(String query, USDAFoodAdapter adapter, TextView placeholderMessage) {
-        Log.d(TAG, "Making API call for: " + query);
-        RetrofitClient.getUSDAService().searchFoods(query, API_KEY).enqueue(new Callback<>() {
-            @Override
-            public void onResponse(@NonNull Call<USDAFoodSearchResponse> call, @NonNull Response<USDAFoodSearchResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    List<USDAFoodItem> items = response.body().getFoods();
-                    Log.d(TAG, "API response size: " + items.size());
-                    for (USDAFoodItem item : items) {
-                        Log.d(TAG, "Food: " + item.getDescription());
-                    }
-                    if (items.isEmpty()) {
-                        placeholderMessage.setText("No results for \"" + query + "\" ❌");
-                    } else {
-                        placeholderMessage.setText("Suggestions for \"" + query + "\":");
-                    }
-                    adapter.setData(items);
-                } else {
-                    placeholderMessage.setText("No food found ❌");
-                    Log.e(TAG, "Response unsuccessful or empty");
-                }
-            }
+    private void searchFood(String query, FoodAdapter adapter) {
+        RetrofitClient.getUSDAService().searchFoods(query, 25, API_KEY)
+                .enqueue(new Callback<FoodSearchResponse>() {
+                    @Override
+                    public void onResponse(@NonNull Call<FoodSearchResponse> call, @NonNull Response<FoodSearchResponse> response) {
+                        if (response.isSuccessful() && response.body() != null && response.body().getFoods() != null) {
+                            List<FoodItem> items = response.body().getFoods();
+                            Log.d(TAG, "API returned " + items.size() + " items");
+                            adapter.setData(items);
 
-            @Override
-            public void onFailure(@NonNull Call<USDAFoodSearchResponse> call, @NonNull Throwable t) {
-                placeholderMessage.setText("API error: " + t.getMessage());
-                Log.e(TAG, "API failed: " + t.getMessage());
-            }
-        });
+                            if (items.isEmpty()) {
+                                placeholderMessage.setText("No results for \"" + query + "\" ❌");
+                            } else {
+                                placeholderMessage.setText("Suggestions for \"" + query + "\":");
+                            }
+                        } else {
+                            placeholderMessage.setText("No food found ❌");
+                            Log.e(TAG, "Response unsuccessful: " + response.code());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<FoodSearchResponse> call, @NonNull Throwable t) {
+                        placeholderMessage.setText("API error: " + t.getMessage());
+                        Log.e(TAG, "API failed: " + t.getMessage());
+                    }
+                });
     }
 
-    private void launchNutrientScreen(USDAFoodItem item) {
-        SessionTracker.actions.add("Selected food item: " + item.getDescription() + " at " + System.currentTimeMillis());
-        Log.d(TAG, "Launching MainActivity with: " + item.getDescription());
+    private void launchNutrientScreen(FoodItem item) {
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra("foodDescription", item.getDescription());
         intent.putExtra("nutrients", new Gson().toJson(item.getFoodNutrients()));
+
+        // ✅ Forward mealType properly
+        String mealType = getIntent().getStringExtra("mealType");
+        if (mealType != null) {
+            intent.putExtra("mealType", mealType);
+        }
+
         startActivity(intent);
+    }
+
+
+    private void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        if (imm != null) imm.hideSoftInputFromWindow(searchInput.getWindowToken(), 0);
     }
 }

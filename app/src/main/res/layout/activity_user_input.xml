@@ -1,246 +1,249 @@
 <?xml version="1.0" encoding="utf-8"?>
-        <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            xmlns:tools="http://schemas.android.com/tools"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#121212">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+                <!-- Background Image -->
                 <ImageView
-                    android:id="@+id/logoImage"
-                    android:layout_width="526dp"
-                    android:layout_height="1024dp"
-                    android:contentDescription="@string/app_logo"
+                    android:id="@+id/backgroundImage"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:scaleType="centerCrop"
                     android:src="@drawable/image1"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.626"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.146"
-                    tools:ignore="VisualLintBounds" />
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <!-- Overlay for readability -->
+
+                <!-- Gender Label -->
+
+                <!-- Gender Spinner -->
+
+                <!-- Age -->
+
+                <!-- Next Button -->
 
                 <Button
                     android:id="@+id/backButton"
-                    android:layout_width="53dp"
-                    android:layout_height="43dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="4dp"
                     android:background="@drawable/baseline_arrow_back_24"
-                    android:contentDescription="@string/back_button"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.0"
-                    tools:ignore="RedundantDescriptionCheck" />
+                    app:layout_constraintTop_toTopOf="@+id/backgroundImage"
+                    tools:ignore="SpeakableTextPresentCheck" />
 
                 <Button
                     android:id="@+id/nextButton"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginEnd="16dp"
                     android:background="@drawable/outline_arrow_forward_24"
-                    android:contentDescription="@string/next_button"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/backgroundImage"
+                    tools:ignore="SpeakableTextPresentCheck" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="#AA121212"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="1.0"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.0"
-                    tools:ignore="RedundantDescriptionCheck" />
-
-
-                <!-- Gender -->
-
-                <!-- Age -->
-
-                <!-- Height -->
+                    app:layout_constraintVertical_bias="0.0" />
 
                 <TextView
                     android:id="@+id/genderLabel"
-                    android:layout_width="89dp"
-                    android:layout_height="34dp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="68dp"
                     android:text="@string/gender2"
                     android:textColor="#FFFFFF"
-                    android:textSize="25sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:textSize="16sp"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.034"
+                    app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.081"
-                    tools:ignore="TextSizeCheck" />
-
-                <!-- Weight -->
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <Spinner
                     android:id="@+id/genderSpinner"
-                    android:layout_width="177dp"
+                    android:layout_width="0dp"
                     android:layout_height="48dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="48dp"
-                    android:background="#FFFFFF"
-                    android:backgroundTint="#FFFFFF"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/white_spinner"
                     android:entries="@array/gender_options"
-                    android:gravity="center"
                     android:spinnerMode="dropdown"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.561"
+                    app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toBottomOf="@id/genderLabel" />
 
-                <TextView
-                    android:id="@+id/ageLabel"
-                    android:layout_width="74dp"
-                    android:layout_height="34dp"
-                    android:text="@string/age"
-                    android:textColor="#FFFFFF"
-                    android:textSize="25sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.032"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.149"
-                    tools:ignore="TextSizeCheck,VisualLintOverlap" />
+                <!-- Height -->
 
-                <EditText
-                    android:id="@+id/ageInput"
-                    android:layout_width="114dp"
-                    android:layout_height="48dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="104dp"
-                    android:autofillHints=""
-                    android:background="#FFFFFF"
-                    android:gravity="center"
-                    android:hint="@string/enter_age"
-                    android:inputType="number"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.439"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                <!-- Weight -->
 
                 <!-- Goal Weight -->
 
+                <!-- Result -->
+
+                <TextView
+                    android:id="@+id/ageLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/age"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/genderSpinner" />
+
+                <EditText
+                    android:id="@+id/ageInput"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/white_edittext"
+                    android:gravity="center"
+                    android:hint="@string/enter_age"
+                    android:inputType="number"
+                    android:textColor="#E6E6E6"
+                    android:textColorHint="#F4F4F4"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/ageLabel" />
+
                 <TextView
                     android:id="@+id/heightLabel"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="172dp"
+                    android:layout_marginTop="28dp"
                     android:text="@string/height_cm"
                     android:textColor="#FFFFFF"
-                    android:textSize="25sp"
+                    android:textSize="16sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toBottomOf="@id/ageInput" />
 
                 <EditText
                     android:id="@+id/heightInput"
-                    android:layout_width="150dp"
+                    android:layout_width="0dp"
                     android:layout_height="48dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="168dp"
-                    android:layout_marginEnd="16dp"
-                    android:autofillHints=""
-                    android:background="#FFFFFF"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/white_edittext"
                     android:gravity="center"
                     android:hint="@string/enter_height_in_cm"
                     android:inputType="numberDecimal"
+                    android:textColor="#F6F6F6"
+                    android:textColorHint="#F6F6F6"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.202"
-                    app:layout_constraintStart_toEndOf="@id/heightLabel"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/heightLabel" />
 
                 <TextView
                     android:id="@+id/weightLabel"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-
-                    android:layout_marginTop="236dp"
+                    android:layout_marginTop="28dp"
                     android:text="@string/weight_kg"
                     android:textColor="#FFFFFF"
-                    android:textSize="25sp"
+                    android:textSize="16sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toBottomOf="@id/heightInput" />
 
                 <EditText
                     android:id="@+id/weightInput"
-                    android:layout_width="169dp"
-                    android:layout_height="50dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="240dp"
-                    android:layout_marginEnd="16dp"
-                    android:autofillHints=""
-                    android:background="#FFFFFF"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/white_edittext"
                     android:gravity="center"
                     android:hint="@string/enter_weight_in_kgs"
                     android:inputType="numberDecimal"
+                    android:textColor="#F1F1F1"
+                    android:textColorHint="#FBFBFB"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.107"
-                    app:layout_constraintStart_toEndOf="@id/weightLabel"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/weightLabel" />
 
                 <TextView
                     android:id="@+id/goalWeightLabel"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="308dp"
+                    android:layout_marginTop="20dp"
                     android:text="@string/goal_weight_kg"
                     android:textColor="#FFFFFF"
-                    android:textSize="25sp"
+                    android:textSize="16sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toBottomOf="@id/weightInput" />
 
                 <EditText
                     android:id="@+id/goalWeightInput"
-                    android:layout_width="178dp"
+                    android:layout_width="0dp"
                     android:layout_height="48dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="296dp"
-                    android:layout_marginEnd="16dp"
-                    android:autofillHints=""
-                    android:background="#FFFFFF"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/white_edittext"
                     android:gravity="center"
                     android:hint="@string/enter_goal_weight"
                     android:inputType="numberDecimal"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="#FFFFFF"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="1.0"
-                    app:layout_constraintStart_toEndOf="@id/goalWeightLabel"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <Button
-                    android:id="@+id/saveButton"
-                    android:layout_width="236dp"
-                    android:layout_height="52dp"
-                    android:layout_marginTop="684dp"
-                    android:text="@string/save"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.622"
+                    app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/logoImage" />
+                    app:layout_constraintTop_toBottomOf="@id/goalWeightLabel" />
 
                 <TextView
                     android:id="@+id/resultText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:gravity="center"
-                    android:padding="16dp"
                     android:text=""
                     android:textColor="#FFFFFF"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:background="#212121"
+                    android:textSize="16sp"
+                    android:gravity="center"
+                    android:background="#AAE67D7D"
+                    android:padding="12dp"
                     android:visibility="gone"
+                    android:layout_marginTop="16dp"
                     app:layout_constraintTop_toBottomOf="@id/goalWeightInput"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent" />
+                    app:layout_constraintEnd_toEndOf="parent"/>
 
-
-
+                <!-- Save Button -->
+                <Button
+                    android:id="@+id/saveButton"
+                    android:layout_width="331dp"
+                    android:layout_height="51dp"
+                    android:layout_marginTop="96dp"
+                    android:background="@drawable/white_button"
+                    android:text="@string/save"
+                    android:textColor="#000000"
+                    android:textSize="16sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/resultText" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-
+</ScrollView>

@@ -6,7 +6,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.*;
 
 public class InputActivity extends AppCompatActivity {
@@ -112,7 +116,7 @@ public class InputActivity extends AppCompatActivity {
                 resultText.setText(goalMessage + Math.round(dailyCalories) + " calories/day.");
                 resultText.setVisibility(View.VISIBLE);
 
-                // 🔥 Firestore logging
+                // 🔥 Firestore logging (now includes UID)
                 logSession(age, height, weight, goalWeight, gender, goalType, Math.round(dailyCalories));
 
             } catch (NumberFormatException e) {
@@ -176,9 +180,18 @@ public class InputActivity extends AppCompatActivity {
         SessionTracker.actions.add("Recommended Intake: " + dailyCalorie + " kcal");
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
         Map<String, Object> sessionData = new HashMap<>();
         sessionData.put("actions", new ArrayList<>(SessionTracker.actions));
         sessionData.put("timestamp", System.currentTimeMillis());
+
+        // ✅ Attach UID if logged in
+        if (user != null) {
+            sessionData.put("uid", user.getUid());
+        } else {
+            sessionData.put("uid", "guest"); // fallback if not logged in yet
+        }
 
         db.collection("userSessions")
                 .add(sessionData)

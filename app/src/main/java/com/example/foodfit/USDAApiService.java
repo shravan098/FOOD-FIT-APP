@@ -7,8 +7,9 @@ import retrofit2.http.Query;
 public interface USDAApiService {
 
     @GET("foods/search")
-    Call<USDAFoodSearchResponse> searchFoods(
+    Call<FoodSearchResponse> searchFoods(
             @Query("query") String query,
+            @Query("pageSize") int pageSize,
             @Query("api_key") String apiKey
     );
 }

@@ -1,7 +1,6 @@
 package com.example.foodfit;
 
 import android.Manifest;
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -11,15 +10,15 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -31,14 +30,16 @@ public class DinnerMealActivity extends AppCompatActivity {
     private Button btnSearchFood, btnScanFood;
     private RecyclerView recyclerMeals;
 
-    private static final int REQUEST_CAMERA = 101;
     private ActivityResultLauncher<String> cameraPermissionLauncher;
-    private ActivityResultLauncher<PickVisualMediaRequest> galleryPickerLauncher;
+    private ActivityResultLauncher<Intent> cameraLauncher;
+    private ActivityResultLauncher<String> galleryLauncher;
 
     private FirebaseFirestore db;
     private String userId;
     private MealAdapter adapter;
     private List<DocumentSnapshot> mealList = new ArrayList<>();
+
+    private static final String MEAL_TYPE = "Dinner";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,53 +52,67 @@ public class DinnerMealActivity extends AppCompatActivity {
 
         recyclerMeals.setLayoutManager(new LinearLayoutManager(this));
 
+        // Initialize Firebase
         db = FirebaseFirestore.getInstance();
-        userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        adapter = new MealAdapter(this, mealList, new MealAdapter.OnMealActionListener() {
-            @Override
-            public void onEdit(DocumentSnapshot doc) {
-                Intent intent = new Intent(DinnerMealActivity.this, GeminiFinalResultActivity.class);
-                intent.putExtra("docId", doc.getId());
-                intent.putExtra("foodName", doc.getString("foodName"));
-                intent.putExtra("calories", doc.getString("calories"));
-                intent.putExtra("protein", doc.getString("protein"));
-                intent.putExtra("fat", doc.getString("fat"));
-                intent.putExtra("carbs", doc.getString("carbs"));
-                intent.putExtra("grams", doc.getDouble("grams"));
-                intent.putExtra("mealType", "Dinner"); // ✅ fix for dinner
-                startActivity(intent);
-            }
+        // FIXED: Check if user is signed in before getting UID
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = auth.getCurrentUser();
 
-            @Override
-            public void onDelete(DocumentSnapshot doc) {
-                doc.getReference().delete()
-                        .addOnSuccessListener(aVoid -> {
-                            Toast.makeText(DinnerMealActivity.this, "🗑 Deleted", Toast.LENGTH_SHORT).show();
-                            loadMeals();
-                        });
-            }
-        });
-
-        recyclerMeals.setAdapter(adapter);
+        if (currentUser != null) {
+            userId = currentUser.getUid();
+            setupAdapter();
+            recyclerMeals.setAdapter(adapter);
+            loadMeals();
+        } else {
+            // User is not signed in, redirect to login
+            Toast.makeText(this, "Please sign in first", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, SignInActivity.class));
+            finish();
+            return;
+        }
 
         btnSearchFood.setOnClickListener(v -> {
             Intent intent = new Intent(DinnerMealActivity.this, FoodSearchActivity.class);
-            intent.putExtra("mealType", "Dinner"); // ✅ fix for dinner
+            intent.putExtra("mealType", MEAL_TYPE);
             startActivity(intent);
         });
 
         initLaunchers();
         btnScanFood.setOnClickListener(v -> showScanOptions());
+    }
 
-        loadMeals();
+    private void setupAdapter() {
+        adapter = new MealAdapter(this, mealList, new MealAdapter.OnMealActionListener() {
+            public void onEdit(DocumentSnapshot doc) {
+                Intent intent = new Intent(DinnerMealActivity.this, DinnerMealActivity.class);
+                intent.putExtra("docId", doc.getId());
+                intent.putExtra("foodName", safeGetString(doc, "foodName"));
+                intent.putExtra("calories", safeGetString(doc, "calories"));
+                intent.putExtra("protein", safeGetString(doc, "protein"));
+                intent.putExtra("fat", safeGetString(doc, "fat"));
+                intent.putExtra("carbs", safeGetString(doc, "carbs"));
+                intent.putExtra("grams", safeGetDouble(doc, "grams"));
+                intent.putExtra("mealType", MEAL_TYPE);
+                startActivity(intent);
+            }
+
+            public void onDelete(DocumentSnapshot doc) {
+                doc.getReference().delete()
+                        .addOnSuccessListener(aVoid -> {
+                            Toast.makeText(DinnerMealActivity.this, "🗑 Deleted", Toast.LENGTH_SHORT).show();
+                            loadMeals();
+                        })
+                        .addOnFailureListener(e -> Toast.makeText(DinnerMealActivity.this, "❌ Failed to delete", Toast.LENGTH_SHORT).show());
+            }
+        });
     }
 
     private void loadMeals() {
         db.collection("users")
                 .document(userId)
                 .collection("meals")
-                .whereEqualTo("mealType", "Dinner")
+                .whereEqualTo("mealType", MEAL_TYPE)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     mealList.clear();
@@ -106,46 +121,68 @@ public class DinnerMealActivity extends AppCompatActivity {
 
                     int totalCalories = 0;
                     for (DocumentSnapshot doc : mealList) {
-                        String calStr = doc.getString("calories");
-                        if (calStr != null && !calStr.isEmpty()) {
+                        Object calObj = doc.get("calories");
+                        if (calObj != null) {
                             try {
-                                totalCalories += Integer.parseInt(calStr);
-                            } catch (NumberFormatException e) {
-                                e.printStackTrace();
-                            }
+                                if (calObj instanceof Number) totalCalories += ((Number) calObj).intValue();
+                                else totalCalories += Integer.parseInt(calObj.toString());
+                            } catch (NumberFormatException ignored) {}
                         }
                     }
 
                     getSharedPreferences("FoodFitPrefs", MODE_PRIVATE)
                             .edit()
-                            .putInt("dinnerConsumed", totalCalories) // ✅ dinner calories save
+                            .putInt("dinnerConsumed", totalCalories)
                             .apply();
-                });
+                })
+                .addOnFailureListener(e -> Toast.makeText(this, "❌ Failed to load meals", Toast.LENGTH_SHORT).show());
+    }
+
+    private String safeGetString(DocumentSnapshot doc, String field) {
+        Object obj = doc.get(field);
+        return obj != null ? obj.toString() : "0";
+    }
+
+    private double safeGetDouble(DocumentSnapshot doc, String field) {
+        Object obj = doc.get(field);
+        if (obj instanceof Number) return ((Number) obj).doubleValue();
+        try { return Double.parseDouble(obj.toString()); } catch (Exception e) { return 0.0; }
     }
 
     private void initLaunchers() {
         cameraPermissionLauncher = registerForActivityResult(
                 new ActivityResultContracts.RequestPermission(),
                 isGranted -> {
-                    if (isGranted) launchCameraIntent();
+                    if (isGranted) launchCamera();
                     else Toast.makeText(this, "⚠️ Camera permission denied", Toast.LENGTH_SHORT).show();
-                }
-        );
+                });
 
-        galleryPickerLauncher = registerForActivityResult(
-                new ActivityResultContracts.PickVisualMedia(),
+        cameraLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Bitmap photo = (Bitmap) result.getData().getExtras().get("data");
+                        Intent intent = new Intent(DinnerMealActivity.this, PreviewActivity.class);
+                        intent.putExtra("fromCamera", true);
+                        intent.putExtra("cameraBitmap", photo);
+                        intent.putExtra("mealType", MEAL_TYPE);
+                        Toast.makeText(this, "Passing mealType → " + MEAL_TYPE, Toast.LENGTH_SHORT).show();
+                        startActivity(intent);
+                    }
+                });
+
+        galleryLauncher = registerForActivityResult(
+                new ActivityResultContracts.GetContent(),
                 uri -> {
                     if (uri != null) {
                         Intent intent = new Intent(DinnerMealActivity.this, PreviewActivity.class);
                         intent.putExtra("fromCamera", false);
                         intent.putExtra("imageUri", uri.toString());
-                        intent.putExtra("mealType", "Dinner"); // ✅ fix for dinner
+                        intent.putExtra("mealType", MEAL_TYPE);
+                        Toast.makeText(this, "Passing mealType → " + MEAL_TYPE, Toast.LENGTH_SHORT).show();
                         startActivity(intent);
-                    } else {
-                        Toast.makeText(this, "⚠️ No image selected", Toast.LENGTH_SHORT).show();
                     }
-                }
-        );
+                });
     }
 
     private void showScanOptions() {
@@ -155,40 +192,17 @@ public class DinnerMealActivity extends AppCompatActivity {
                 .setTitle("Select Option")
                 .setItems(options, (dialog, which) -> {
                     if (which == 0) {
-                        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-                                == PackageManager.PERMISSION_GRANTED) {
-                            launchCameraIntent();
-                        } else {
-                            cameraPermissionLauncher.launch(Manifest.permission.CAMERA);
-                        }
+                        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED)
+                            launchCamera();
+                        else cameraPermissionLauncher.launch(Manifest.permission.CAMERA);
                     } else if (which == 1) {
-                        galleryPickerLauncher.launch(
-                                new PickVisualMediaRequest.Builder()
-                                        .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
-                                        .build()
-                        );
-                    } else {
-                        dialog.dismiss();
-                    }
+                        galleryLauncher.launch("image/*");
+                    } else dialog.dismiss();
                 }).show();
     }
 
-    private void launchCameraIntent() {
+    private void launchCamera() {
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(cameraIntent, REQUEST_CAMERA);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == RESULT_OK && data != null && requestCode == REQUEST_CAMERA) {
-            Bitmap photo = (Bitmap) data.getExtras().get("data");
-            Intent intent = new Intent(DinnerMealActivity.this, PreviewActivity.class);
-            intent.putExtra("fromCamera", true);
-            intent.putExtra("cameraBitmap", photo);
-            intent.putExtra("mealType", "Dinner"); // ✅ fix for dinner
-            startActivity(intent);
-        }
+        cameraLauncher.launch(cameraIntent);
     }
 }

@@ -169,12 +169,44 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void shareApp() {
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT,
-                "Check out this amazing app: https://play.google.com/store/apps/details?id=" + getPackageName());
-        startActivity(Intent.createChooser(shareIntent, "Share via"));
+        try {
+            // Get current APK path
+            android.content.pm.ApplicationInfo app = getApplicationContext().getApplicationInfo();
+            String filePath = app.sourceDir;
+            java.io.File originalApk = new java.io.File(filePath);
+
+            // Copy APK to cache for sharing
+            java.io.File cacheFile = new java.io.File(getCacheDir(), "FoodFit.apk");
+            try (java.io.InputStream in = new java.io.FileInputStream(originalApk);
+                 java.io.OutputStream out = new java.io.FileOutputStream(cacheFile)) {
+                byte[] buffer = new byte[1024];
+                int len;
+                while ((len = in.read(buffer)) > 0) {
+                    out.write(buffer, 0, len);
+                }
+            }
+
+            // Get URI from FileProvider
+            android.net.Uri apkUri = androidx.core.content.FileProvider.getUriForFile(
+                    this,
+                    getPackageName() + ".provider",
+                    cacheFile
+            );
+
+            // Create share intent
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("application/vnd.android.package-archive");
+            shareIntent.putExtra(Intent.EXTRA_STREAM, apkUri);
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+            startActivity(Intent.createChooser(shareIntent, "Share App via"));
+
+        } catch (Exception e) {
+            Toast.makeText(this, "Unable to share app: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
+
+
 
     private void contactUs() {
         Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
